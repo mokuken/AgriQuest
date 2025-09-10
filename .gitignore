@@ -1,0 +1,4 @@
+# Ignore all __pycache__ folders and .pyc files inside app/
+app/**/__pycache__/
+app/**/__pycache__/*.pyc
+
