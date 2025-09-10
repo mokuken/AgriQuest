@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AgriQuest Login</title>
+	<style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+		body {
+			margin: 0;
+			padding: 0;
+			min-height: 100vh;
+			font-family: 'Segoe UI', Arial, sans-serif;
+			background: linear-gradient(135deg, #f8f9e9 0%, #e6f4e6 100%);
+			position: relative;
+		}
+		.bg-icon {
+			position: absolute;
+			opacity: 0.08;
+			z-index: 0;
+		}
+		.container {
+			position: relative;
+			z-index: 1;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+		}
+		.login-box {
+			background: #fff;
+			border-radius: 24px;
+			box-shadow: 0 8px 32px rgba(60, 120, 60, 0.12);
+			padding: 40px 32px 32px 32px;
+			width: 100%;
+			max-width: 400px;
+			text-align: center;
+		}
+		.logo {
+			width: 64px;
+			height: 64px;
+			margin-bottom: 8px;
+			background: #e6f4e6;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.logo svg {
+			width: 36px;
+			height: 36px;
+		}
+		.title {
+			font-size: 2rem;
+			font-weight: 700;
+			color: #355c3c;
+			margin-bottom: 4px;
+		}
+		.subtitle {
+			color: #6c7a6c;
+			font-size: 1rem;
+			margin-bottom: 24px;
+		}
+		.form-group {
+			text-align: left;
+			margin-bottom: 18px;
+		}
+		.form-label {
+			font-size: 1rem;
+			color: #355c3c;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			margin-bottom: 6px;
+		}
+		.form-label svg {
+			margin-right: 6px;
+			width: 18px;
+			height: 18px;
+		}
+		.form-input, .form-select {
+			width: 100%;
+			padding: 12px;
+			border-radius: 8px;
+			border: 1px solid #e0e6e0;
+			font-size: 1rem;
+			background: #f8f9f8;
+			outline: none;
+			transition: border-color 0.2s;
+		}
+		.form-input:focus, .form-select:focus {
+			border-color: #a3d9a5;
+		}
+		.password-wrapper {
+			position: relative;
+		}
+		.toggle-password {
+			position: absolute;
+			right: 12px;
+			top: 50%;
+			transform: translateY(-50%);
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 0;
+		}
+		.forgot {
+			display: block;
+			text-align: right;
+			font-size: 0.95rem;
+			color: #6c7a6c;
+			margin-bottom: 18px;
+			text-decoration: none;
+		}
+		.login-btn {
+			width: 100%;
+			background: linear-gradient(90deg, #a3d9a5 0%, #c2e9c2 100%);
+			color: #355c3c;
+			font-size: 1.1rem;
+			font-weight: 600;
+			border: none;
+			border-radius: 10px;
+			padding: 12px;
+			margin-top: 8px;
+			cursor: pointer;
+			transition: background 0.2s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.login-btn svg {
+			margin-right: 8px;
+		}
+		.signup {
+			margin-top: 24px;
+			font-size: 1rem;
+			color: #6c7a6c;
+		}
+		.signup a {
+			color: #355c3c;
+			font-weight: 600;
+			text-decoration: none;
+		}
+		@media (max-width: 500px) {
+			.login-box {
+				padding: 24px 8px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="login-box">
+            <img src="../images/agriquest_logo.png" alt="AgriQuest Logo" style="width:36px;height:36px;">
+			<div class="title">AgriQuest</div>
+			<div class="subtitle">Welcome back to learning</div>
+			<form>
+				<div class="form-group">
+					<label class="form-label" for="email">
+						Email Address
+					</label>
+					<input class="form-input" type="email" id="email" placeholder="Enter your email" required>
+				</div>
+				<div class="form-group">
+					<label class="form-label" for="password">
+						Password
+					</label>
+					<div class="password-wrapper">
+						<input class="form-input" type="password" id="password" placeholder="Enter your password" required>
+						<button type="button" class="toggle-password" onclick="togglePassword()">
+						</button>
+					</div>
+				</div>
+				<a href="#" class="forgot">Forgot password?</a>
+				<button type="submit" class="login-btn">
+					Login as Student
+				</button>
+			</form>
+			<div class="signup">
+				Don't have an account? <a href="register_student.html">Sign up here</a>
+			</div>
+		</div>
+	</div>
+	<script>
+		function togglePassword() {
+			var pwd = document.getElementById('password');
+			if (pwd.type === 'password') {
+				pwd.type = 'text';
+			} else {
+				pwd.type = 'password';
+			}
+		}
+	</script>
+</body>
+</html>
