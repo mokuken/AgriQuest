@@ -1,3 +1,4 @@
 class Config:
     SECRET_KEY = "supersecretkey"
-    # Add database config if needed
+    SQLALCHEMY_DATABASE_URI = "sqlite:///agriquest.db"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
