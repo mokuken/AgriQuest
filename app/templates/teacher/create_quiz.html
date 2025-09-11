@@ -8,25 +8,9 @@
   </head>
   <body>
     <div class="left">
-      <div>
-        <div class="logo">
-          <img
-            src="{{ url_for('static', filename='images/agriquest_logo.png') }}"
-            alt="Logo"
-            width="50"
-            height="50"
-          />
-          <span style="font-size: 1.5rem">AgriQuest</span>
-        </div>
-        <div class="nav-links">
-          <a href="{{ url_for('main.teacher_dashboard') }}">Dashboard</a>
-          <a href="{{ url_for('main.teacher_subjects') }}">Subjects</a>
-          <a href="{{ url_for('main.teacher_quizzes') }}" class="active">Quizzes</a>
-          <a href="#">Students</a>
-          <a href="#">Analytics</a>
-          <a href="#">Settings</a>
-        </div>
-      </div>
+      
+      {% include 'partials/teacher_sidebar.html' %}
+
       <div class="footer">
         <a href="#">Logout</a>
       </div>

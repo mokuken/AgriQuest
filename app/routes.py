@@ -18,6 +18,10 @@ def teacher_subjects():
 def teacher_quizzes():
     return render_template("teacher/quizzes.html")
 
+@main.route("/teacher/students")
+def teacher_students():
+    return render_template("teacher/students.html")
+
 @main.route("/teacher/create")
 def teacher_create_quiz():
     return render_template("teacher/create_quiz.html")

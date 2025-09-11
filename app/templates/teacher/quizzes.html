@@ -37,61 +37,6 @@
       padding-bottom: 20px;
     }
 
-    .logo {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      font-weight: 700;
-      color: #2d3a2d;
-      padding: 10px 0;
-    }
-
-    .nav-links {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-top: 30px;
-    }
-
-    .nav-links a {
-      text-decoration: none;
-      color: #2d3a2d;
-      font-weight: 600;
-      font-size: 1.2rem;
-      padding: 10px 15px;
-      border-radius: 8px;
-      border: 1px solid transparent;
-    }
-
-    .nav-links a:hover {
-      background-color: #f0fdf4;
-      color: #15803d;
-      border: 1px solid #15803d;
-    }
-
-    .nav-links a.active {
-      background-color: #d1fae5;
-      color: #15803d;
-      border: 1px solid #15803d;
-    }
-
-    .footer {
-      padding-top: 12px;
-    }
-    .footer a {
-      text-decoration: none;
-      color: red;
-      font-weight: 600;
-      display: inline-block;
-      padding: 10px 15px;
-      border-radius: 6px;
-      background-color: rgb(255, 186, 186);
-      border: 1px solid red;
-      width: 100%;
-    }
-
     .header {
       width: 100%;
       background-color: #fff;
@@ -374,28 +319,9 @@
   </style>
   <body>
     <div class="left">
-      <div>
-        <div class="logo">
-          <img
-            src="{{ url_for('static', filename='images/agriquest_logo.png') }}"
-            alt="Logo"
-            width="50"
-            height="50"
-          />
-          <span style="font-size: 1.5rem">AgriQuest</span>
-        </div>
-        <div class="nav-links">
-          <a href="{{ url_for('main.teacher_dashboard') }}">Dashboard</a>
-          <a href="{{ url_for('main.teacher_subjects') }}">Subjects</a>
-          <a href="#" class="active">Quizzes</a>
-          <a href="#">Students</a>
-          <a href="#">Analytics</a>
-          <a href="#">Settings</a>
-        </div>
-      </div>
-      <div class="footer">
-        <a href="#">Logout</a>
-      </div>
+
+      {% include 'partials/teacher_sidebar.html' %}
+
     </div>
     <div class="right">
       <div class="header">
