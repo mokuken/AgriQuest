@@ -68,7 +68,7 @@
   <div class="nav-links">
     <a href="{{ url_for('main.teacher_dashboard') }}" class="{% if request.endpoint == 'main.teacher_dashboard' %}active{% endif %}">Dashboard</a>
     <a href="{{ url_for('main.teacher_subjects') }}" class="{% if request.endpoint == 'main.teacher_subjects' %}active{% endif %}">Subjects</a>
-    <a href="{{ url_for('main.teacher_quizzes') }}" class="{% if request.endpoint == 'main.teacher_quizzes' %}active{% endif %}">Quizzes</a>
+    <a href="{{ url_for('main.teacher_quizzes') }}" class="{% if request.endpoint == 'main.teacher_quizzes' or request.endpoint == 'main.teacher_create_quiz' %}active{% endif %}">Quizzes</a>
     <a href="{{ url_for('main.teacher_students') }}" class="{% if request.endpoint == 'main.teacher_students' %}active{% endif %}">Students</a>
     <a href="#">Analytics</a>
     <a href="#">Settings</a>
