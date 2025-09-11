@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/create_quiz.css') }}" />
+  </head>
+  <body>
+    <div class="left">
+      <div>
+        <div class="logo">
+          <img
+            src="{{ url_for('static', filename='images/agriquest_logo.png') }}"
+            alt="Logo"
+            width="50"
+            height="50"
+          />
+          <span style="font-size: 1.5rem">AgriQuest</span>
+        </div>
+        <div class="nav-links">
+          <a href="{{ url_for('main.teacher_dashboard') }}">Dashboard</a>
+          <a href="{{ url_for('main.teacher_subjects') }}">Subjects</a>
+          <a href="{{ url_for('main.teacher_quizzes') }}" class="active">Quizzes</a>
+          <a href="#">Students</a>
+          <a href="#">Analytics</a>
+          <a href="#">Settings</a>
+        </div>
+      </div>
+      <div class="footer">
+        <a href="#">Logout</a>
+      </div>
+    </div>
+    <div class="right">
+      <div class="header">
+        <div class="header-title">
+          <span style="font-size: 1.5rem; font-weight: 700; color: #2d3a2d"
+            >Quizzes</span
+          >
+          <span style="font-size: 1rem; color: grey"
+            >Welcome back! Here's what's happening with your quizzes
+            today.</span
+          >
+        </div>
+        <div class="header-actions">
+          <button
+            style="
+              padding: 10px 15px;
+              border: none;
+              border-radius: 6px;
+              background-color: #4caf50;
+              color: white;
+              font-weight: 600;
+            "
+          >
+            Create Quiz
+          </button>
+        </div>
+      </div>
+      <div class="section" style="width: 100%;">
+        <div class="quiz-details-card">
+          <div class="quiz-details-title">Quiz Details</div>
+          <form>
+            <div class="quiz-details-form-row">
+              <div class="quiz-details-form-col">
+                <label for="quiz-title" class="quiz-details-label">Quiz Title</label>
+                <input type="text" id="quiz-title" name="quiz-title" placeholder="Enter quiz title" class="quiz-details-input" />
+              </div>
+              <div class="quiz-details-form-col">
+                <label for="subject" class="quiz-details-label">Subject</label>
+                <select id="subject" name="subject" class="quiz-details-select">
+                  <option>Select subject</option>
+                  <option>Agriculture</option>
+                  <option>Biology</option>
+                  <option>Machinery</option>
+                </select>
+              </div>
+            </div>
+            <div class="quiz-details-form-row">
+              <div class="quiz-details-form-col">
+                <label for="time-limit" class="quiz-details-label">Time Limit (minutes)</label>
+                <input type="number" id="time-limit" name="time-limit" value="30" class="quiz-details-input" />
+              </div>
+              <div class="quiz-details-form-col">
+                <label for="difficulty" class="quiz-details-label">Difficulty Level</label>
+                <select id="difficulty" name="difficulty" class="quiz-details-select">
+                  <option>Beginner</option>
+                  <option>Intermediate</option>
+                  <option>Advanced</option>
+                </select>
+              </div>
+            </div>
+            <div class="quiz-details-form-col">
+              <label for="description" class="quiz-details-label">Description</label>
+              <textarea id="description" name="description" placeholder="Brief description of the quiz" class="quiz-details-textarea"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="questions-card">
+          <div class="questions-title">Questions</div>
+          <div class="question-box">
+            <div class="question-header">
+              <div class="question-title">Question 1</div>
+              <div class="question-actions">
+                <select class="question-select">
+                  <option>Multiple Choice</option>
+                  <option>True/False</option>
+                </select>
+                <button type="button" class="question-delete">&#128465;</button>
+                <button type="button" class="add-question-btn">+ Add Question</button>
+              </div>
+            </div>
+            <div class="question-form-col" style="margin-bottom: 12px;">
+              <label class="question-label">Question Text</label>
+              <textarea placeholder="Enter your question here" class="question-textarea"></textarea>
+            </div>
+            <div class="question-form-row">
+              <div class="question-form-col">
+                <label class="question-label">Option A</label>
+                <input type="text" placeholder="Enter option A" class="question-input" />
+              </div>
+              <div class="question-form-col">
+                <label class="question-label">Option B</label>
+                <input type="text" placeholder="Enter option B" class="question-input" />
+              </div>
+            </div>
+            <div class="question-form-row">
+              <div class="question-form-col">
+                <label class="question-label">Option C</label>
+                <input type="text" placeholder="Enter option C" class="question-input" />
+              </div>
+              <div class="question-form-col">
+                <label class="question-label">Option D</label>
+                <input type="text" placeholder="Enter option D" class="question-input" />
+              </div>
+            </div>
+            <div class="question-form-col">
+              <label class="question-label">Correct Answer</label>
+              <select class="question-select-answer">
+                <option>Option A</option>
+                <option>Option B</option>
+                <option>Option C</option>
+                <option>Option D</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

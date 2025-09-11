@@ -386,8 +386,8 @@
         </div>
         <div class="nav-links">
           <a href="#" class="active">Dashboard</a>
-          <a href="#">Subjects</a>
-          <a href="#">Quizzes</a>
+          <a href="{{ url_for('main.teacher_subjects') }}">Subjects</a>
+          <a href="{{ url_for('main.teacher_quizzes') }}">Quizzes</a>
           <a href="#">Students</a>
           <a href="#">Analytics</a>
           <a href="#">Settings</a>
@@ -431,7 +431,7 @@
               font-weight: 600;
             "
           >
-            Start Quiz
+            Create Quiz
           </button>
         </div>
       </div>
@@ -494,114 +494,90 @@
       <div class="section">
         <div class="section-left">
           <div class="available-quizzes">
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-              "
-            >
-              <div style="font-weight: 700; color: #111827">
-                Available Quizzes
-              </div>
-              <a style="color: #10b981; text-decoration: none; font-weight: 700"
-                >View All</a
-              >
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-weight: 700; color: #111827">Recent Quizzes</div>
+              <a style="color: #10b981; text-decoration: none; font-weight: 700">View All</a>
             </div>
-            <div class="quiz-item featured">
-              <div
-                class="quiz-icon"
-                style="
-                  background: linear-gradient(180deg, #e9f9f0, #dff3e6);
-                  color: #065f46;
-                "
-              >
-                🌱
-              </div>
-              <div class="quiz-meta">
-                <div class="quiz-title">Soil Science Fundamentals</div>
-                <div class="quiz-desc">Agriculture • 20 questions • 30 min</div>
-                <div class="badge">New</div>
-              </div>
-              <div>
-                <button class="btn green">Start Quiz</button>
-              </div>
-            </div>
-
-            <div class="quiz-item" style="border: 1px solid #eef2ff">
-              <div
-                class="quiz-icon"
-                style="
-                  background: linear-gradient(180deg, #eef2ff, #e6f0ff);
-                  color: #1e3a8a;
-                "
-              >
-                🧬
-              </div>
-              <div class="quiz-meta">
-                <div class="quiz-title">Plant Cell Biology</div>
-                <div class="quiz-desc">Biology • 15 questions • 20 min</div>
-                <div style="color: #f59e0b; font-size: 0.9rem; margin-top: 6px">
-                  ★★★ Last score: 92%
+              <div style="background: #fff7f0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #ffe7ce; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #b45309;">
+                  <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#b45309" stroke-width="2"/><path d="M8 12h8M12 8v8" stroke="#b45309" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 700; color: #111827;">Irrigation Techniques</div>
+                  <div style="color: #6b7280; font-size: 0.95rem;">Agriculture • 12 questions</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 600; color: #111827;">15 attempts</div>
+                  <div style="color: #6b7280; font-size: 0.95rem;">Avg: 79%</div>
                 </div>
               </div>
-              <div>
-                <button class="btn blue">Retake</button>
-              </div>
-            </div>
-
-            <div class="quiz-item" style="border: 1px solid #f5f3ff">
-              <div
-                class="quiz-icon"
-                style="
-                  background: linear-gradient(180deg, #f3e9ff, #eadcff);
-                  color: #6b21a8;
-                "
-              >
-                ⚗️
-              </div>
-              <div class="quiz-meta">
-                <div class="quiz-title">Organic Chemistry Basics</div>
-                <div class="quiz-desc">Chemistry • 25 questions • 45 min</div>
-                <div style="color: #fb923c; font-size: 0.9rem; margin-top: 6px">
-                  Due Tomorrow
+              <div style="background: #f3e9ff; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #eadcff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #6b21a8;">
+                  <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="12" height="12" rx="3" stroke="#6b21a8" stroke-width="2"/><path d="M9 9h6v6H9z" stroke="#6b21a8" stroke-width="2"/></svg>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 700; color: #111827;">Crop Nutrition</div>
+                  <div style="color: #6b7280; font-size: 0.95rem;">Agriculture • 18 questions</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 600; color: #111827;">22 attempts</div>
+                  <div style="color: #6b7280; font-size: 0.95rem;">Avg: 80%</div>
                 </div>
               </div>
-              <div>
-                <button class="btn purple">Start Quiz</button>
+              <div style="background: #e9f9f0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #dff3e6; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #065f46;">
+                  <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v20M2 12h20" stroke="#065f46" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 700; color: #111827;">Pest Management</div>
+                  <div style="color: #6b7280; font-size: 0.95rem;">Agriculture • 10 questions</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 600; color: #111827;">10 attempts</div>
+                  <div style="color: #6b7280; font-size: 0.95rem;">Avg: 77%</div>
+                </div>
+              </div>
+            <div style="background: #f6fefc; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: #e9f9f0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #15803d;">
+                <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 17V7a5 5 0 0 1 10 0v10" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="17" r="5" stroke="#15803d" stroke-width="2"/></svg>
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; color: #111827;">Plant Biology Basics</div>
+                <div style="color: #6b7280; font-size: 0.95rem;">Agriculture • 15 questions</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-weight: 600; color: #111827;">24 attempts</div>
+                <div style="color: #6b7280; font-size: 0.95rem;">Avg: 82%</div>
+              </div>
+            </div>
+            <div style="background: #f6f8ff; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: #e6f0ff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #2563eb;">
+                <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v10" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="7" y="10" width="10" height="7" rx="2" stroke="#2563eb" stroke-width="2"/></svg>
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; color: #111827;">Farm Machinery</div>
+                <div style="color: #6b7280; font-size: 0.95rem;">Agriculture • 20 questions</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-weight: 600; color: #111827;">18 attempts</div>
+                <div style="color: #6b7280; font-size: 0.95rem;">Avg: 75%</div>
               </div>
             </div>
           </div>
         </div>
         <div class="section-right">
-          <div class="todays-goal">
-            <div class="goal-header">
-              <div class="goal-title">Today's Goal</div>
-              <div style="opacity: 0.9">?</div>
-            </div>
-            <div class="goal-progress-row">
-              <div style="font-size: 0.95rem">Quizzes Completed</div>
-              <div style="font-weight: 700">2/3</div>
-            </div>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <div class="goal-note">1 more quiz to reach your daily goal!</div>
-          </div>
-          <div class="recent-achievements">
-            <div style="font-weight: 700; margin-bottom: 6px; color: #111827">
-              Recent Achievements
-            </div>
-            <div class="achievement-item">
-              <div class="ach-icon gold">🥇</div>
-              <div class="ach-text">
-                <div class="title">Perfect Score</div>
-                <div class="subtitle">Plant Biology Quiz</div>
-              </div>
-            </div>
-            <div class="achievement-item">
-              <div class="ach-icon green">🔥</div>
-              <div class="ach-text">
-                <div class="title">10 Day Streak</div>
-                <div class="subtitle">Daily practice</div>
+            <div style="background: linear-gradient(180deg, #22c55e, #16a34a); border-radius: 12px; color: #fff; padding: 18px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(34,197,94,0.12);">
+              <div style="font-weight: 700; margin-bottom: 16px; font-size: 1.15rem;">Quick Actions</div>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.12); border: none; border-radius: 8px; padding: 12px 16px; color: #fff; font-weight: 600; font-size: 1rem; cursor: pointer;">
+                  <span style="font-size: 1.2rem;">&#43;</span> Create New Quiz
+                </button>
+                <button style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.12); border: none; border-radius: 8px; padding: 12px 16px; color: #fff; font-weight: 600; font-size: 1rem; cursor: pointer;">
+                  <span style="font-size: 1.2rem;">&#128218;</span> Add Subject
+                </button>
+                <button style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.12); border: none; border-radius: 8px; padding: 12px 16px; color: #fff; font-weight: 600; font-size: 1rem; cursor: pointer;">
+                  <span style="font-size: 1.2rem;">&#128101;</span> Invite Students
+                </button>
               </div>
             </div>
           </div>

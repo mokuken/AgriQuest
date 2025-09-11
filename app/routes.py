@@ -9,3 +9,15 @@ def select_role():
 @main.route("/teacher/dashboard")
 def teacher_dashboard():
     return render_template("teacher/dashboard.html")
+
+@main.route("/teacher/subjects")
+def teacher_subjects():
+    return render_template("teacher/subjects.html")
+
+@main.route("/teacher/quizzes")
+def teacher_quizzes():
+    return render_template("teacher/quizzes.html")
+
+@main.route("/teacher/create")
+def teacher_create_quiz():
+    return render_template("teacher/create_quiz.html")

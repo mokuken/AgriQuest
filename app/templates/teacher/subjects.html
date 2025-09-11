@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+  </head>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9e9;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .left {
+      width: 20%;
+      background: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .right {
+      height: 100vh;
+      width: 80%;
+      overflow-y: scroll;
+      padding-bottom: 20px;
+    }
+
+    .logo {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: 700;
+      color: #2d3a2d;
+      padding: 10px 0;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #2d3a2d;
+      font-weight: 600;
+      font-size: 1.2rem;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+    }
+
+    .nav-links a:hover {
+      background-color: #f0fdf4;
+      color: #15803d;
+      border: 1px solid #15803d;
+    }
+
+    .nav-links a.active {
+      background-color: #d1fae5;
+      color: #15803d;
+      border: 1px solid #15803d;
+    }
+
+    .footer {
+      padding-top: 12px;
+    }
+    .footer a {
+      text-decoration: none;
+      color: red;
+      font-weight: 600;
+      display: inline-block;
+      padding: 10px 15px;
+      border-radius: 6px;
+      background-color: rgb(255, 186, 186);
+      border: 1px solid red;
+      width: 100%;
+    }
+
+    .header {
+      width: 100%;
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: 1fr;
+      grid-column-gap: 0px;
+      grid-row-gap: 0px;
+      padding: 0 10px;
+    }
+
+    .total-quizzes {
+      grid-area: 1 / 1 / 2 / 2;
+    }
+    .active-subjects {
+      grid-area: 1 / 2 / 2 / 3;
+    }
+    .total-students {
+      grid-area: 1 / 3 / 2 / 4;
+    }
+    .avg-score {
+      grid-area: 1 / 4 / 2 / 5;
+    }
+
+    .total-quizzes,
+    .active-subjects,
+    .total-students,
+    .avg-score {
+      background: white;
+      margin: 0 10px;
+      padding: 20px 25px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #e6e6e6;
+    }
+    .stat-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .stat-title {
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .stat-delta {
+      font-size: 0.9rem;
+      color: #10b981; /* green for positive */
+      font-weight: 600;
+    }
+    .stat-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stat-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .stat-icon.blue {
+      background: linear-gradient(180deg, #e8f1ff, #dfeeff);
+      color: #1e3a8a;
+    }
+    .stat-icon.green {
+      background: linear-gradient(180deg, #e9f9f0, #dff3e6);
+      color: #065f46;
+    }
+    .stat-icon.purple {
+      background: linear-gradient(180deg, #f3e9ff, #eadcff);
+      color: #6b21a8;
+    }
+    .stat-icon.orange {
+      background: linear-gradient(180deg, #fff3e6, #ffe7ce);
+      color: #b45309;
+    }
+
+    .section {
+      display: flex;
+      gap: 20px;
+      padding: 0 20px;
+      margin-top: 20px;
+    }
+
+    .section-left,
+    .section-right {
+      border-radius: 12px;
+    }
+
+    .section-left {
+      width: 70%;
+    }
+
+    .section-right {
+      width: 30%;
+    }
+
+    .available-quizzes {
+      width: 100%;
+      background: white;
+      border-radius: 10px;
+      padding: 20px 25px;
+      border: 1px solid #e6e6e6;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .quiz-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid transparent;
+    }
+    .quiz-item.featured {
+      background: linear-gradient(90deg, #ecf9ee, #f6fdf8);
+      border: 1px solid #dff3e6;
+    }
+    .quiz-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .quiz-meta {
+      flex: 1;
+    }
+    .quiz-title {
+      font-weight: 700;
+      color: #111827;
+    }
+    .quiz-desc {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin-top: 6px;
+    }
+    .badge {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #065f46;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+    .btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn.green {
+      background: #10b981;
+      color: #fff;
+    }
+    .btn.blue {
+      background: #2563eb;
+      color: #fff;
+    }
+    .btn.purple {
+      background: linear-gradient(90deg, #7c3aed, #c084fc);
+      color: #fff;
+    }
+
+    .todays-goal {
+      width: 100%;
+      background: linear-gradient(180deg, #2b6ef6, #2563eb);
+      border-radius: 12px;
+      color: #fff;
+      padding: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+    }
+    .todays-goal .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .todays-goal .goal-title {
+      font-weight: 700;
+    }
+    .todays-goal .goal-progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .todays-goal .progress-track {
+      background: rgba(255, 255, 255, 0.18);
+      height: 8px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .todays-goal .progress-fill {
+      height: 100%;
+      background: #fff;
+      border-radius: 8px;
+      width: 66%;
+    }
+    .todays-goal .goal-note {
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .recent-achievements {
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid #e6e6e6;
+      box-shadow: 0 6px 18px rgba(16, 24, 40, 0.03);
+    }
+    .achievement-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .ach-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .ach-icon.gold {
+      background: linear-gradient(180deg, #fff7e6, #fff1d6);
+      color: #b45309;
+    }
+    .ach-icon.green {
+      background: linear-gradient(180deg, #ecfdf5, #dff7ec);
+      color: #059669;
+    }
+    .ach-text .title {
+      font-weight: 700;
+      color: #111827;
+    }
+    .ach-text .subtitle {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+  </style>
+  <body>
+    <div class="left">
+      <div>
+        <div class="logo">
+          <img
+            src="{{ url_for('static', filename='images/agriquest_logo.png') }}"
+            alt="Logo"
+            width="50"
+            height="50"
+          />
+          <span style="font-size: 1.5rem">AgriQuest</span>
+        </div>
+        <div class="nav-links">
+          <a href="{{ url_for('main.teacher_dashboard') }}">Dashboard</a>
+          <a href="#" class="active">Subjects</a>
+          <a href="{{ url_for('main.teacher_quizzes') }}">Quizzes</a>
+          <a href="#">Students</a>
+          <a href="#">Analytics</a>
+          <a href="#">Settings</a>
+        </div>
+      </div>
+      <div class="footer">
+        <a href="#">Logout</a>
+      </div>
+    </div>
+    <div class="right">
+      <div class="header">
+        <div class="header-title">
+          <span style="font-size: 1.5rem; font-weight: 700; color: #2d3a2d"
+            >Subjects</span
+          >
+          <span style="font-size: 1rem; color: grey"
+            >Welcome back! Here's an overview of your subjects today.</span
+          >
+        </div>
+        <div class="header-actions">
+          <a href="#"
+            style="
+              padding: 10px 15px;
+              border: none;
+              border-radius: 6px;
+              background-color: #4caf50;
+              color: white;
+              font-weight: 600;
+            "
+          >
+            Add Subject
+          </a>
+        </div>
+      </div>
+      <div class="section" style="width: 100%;">
+        <div class="available-quizzes" style="width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 700; color: #111827">Subjects</div>
+            <a style="color: #10b981; text-decoration: none; font-weight: 700">View All</a>
+          </div>
+          <div style="background: #fff7f0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #ffe7ce; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #b45309;">
+              <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#b45309" stroke-width="2"/><path d="M8 12h8M12 8v8" stroke="#b45309" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 700; color: #111827;">Agronomy</div>
+              <div style="color: #6b7280; font-size: 0.95rem;">Study of crops and soils</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: 600; color: #111827;">5 quizzes</div>
+              <div style="color: #6b7280; font-size: 0.95rem;">120 students</div>
+            </div>
+          </div>
+          <div style="background: #f3e9ff; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #eadcff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #6b21a8;">
+              <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="12" height="12" rx="3" stroke="#6b21a8" stroke-width="2"/><path d="M9 9h6v6H9z" stroke="#6b21a8" stroke-width="2"/></svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 700; color: #111827;">Horticulture</div>
+              <div style="color: #6b7280; font-size: 0.95rem;">Fruits, vegetables, and ornamental plants</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: 600; color: #111827;">3 quizzes</div>
+              <div style="color: #6b7280; font-size: 0.95rem;">80 students</div>
+            </div>
+          </div>
+          <div style="background: #e9f9f0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #dff3e6; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #065f46;">
+              <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v20M2 12h20" stroke="#065f46" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 700; color: #111827;">Soil Science</div>
+              <div style="color: #6b7280; font-size: 0.95rem;">Properties and management of soil</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: 600; color: #111827;">4 quizzes</div>
+              <div style="color: #6b7280; font-size: 0.95rem;">100 students</div>
+            </div>
+          </div>
+          <div style="background: #f6fefc; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #e9f9f0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #15803d;">
+              <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 17V7a5 5 0 0 1 10 0v10" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="17" r="5" stroke="#15803d" stroke-width="2"/></svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 700; color: #111827;">Entomology</div>
+              <div style="color: #6b7280; font-size: 0.95rem;">Study of insects in agriculture</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: 600; color: #111827;">2 quizzes</div>
+              <div style="color: #6b7280; font-size: 0.95rem;">60 students</div>
+            </div>
+          </div>
+          <div style="background: #f6f8ff; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #e6f0ff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #2563eb;">
+              <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v10" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="7" y="10" width="10" height="7" rx="2" stroke="#2563eb" stroke-width="2"/></svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 700; color: #111827;">Plant Pathology</div>
+              <div style="color: #6b7280; font-size: 0.95rem;">Diseases affecting crops</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: 600; color: #111827;">3 quizzes</div>
+              <div style="color: #6b7280; font-size: 0.95rem;">70 students</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
