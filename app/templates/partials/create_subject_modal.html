@@ -1,4 +1,39 @@
 <style>
+  /* Top notification modal */
+  .top-modal {
+    position: fixed;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 320px;
+    max-width: 480px;
+    background: #fff;
+    color: #111827;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    padding: 16px 24px;
+    font-size: 1.05rem;
+    font-weight: 500;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px solid #e5e7eb;
+    transition: opacity 0.2s;
+  }
+  .top-modal.success {
+    border-color: #22c55e;
+    color: #16a34a;
+  }
+  .top-modal.error {
+    border-color: #ef4444;
+    color: #b91c1c;
+  }
+  .top-modal.show {
+    display: flex;
+    opacity: 1;
+  }
   /* Modal overlay */
   .modal-overlay {
     position: fixed;
@@ -32,6 +67,9 @@
     }
   }
 </style>
+
+
+{% include 'partials/alert_modal.html' %}
 
 <!-- Subject modal -->
 <div
@@ -251,15 +289,15 @@
         .then(res => res.json())
         .then(result => {
           if (result.status === "success") {
-            alert("Subject created successfully!");
+            window.showAlertModal("Subject created successfully!", "success");
             closeModal();
             form.reset();
           } else {
-            alert(result.error || "Failed to create subject.");
+            window.showAlertModal(result.error || "Failed to create subject.", "error");
           }
         })
         .catch(() => {
-          alert("Error creating subject.");
+          window.showAlertModal("Error creating subject.", "error");
         });
       });
     }
