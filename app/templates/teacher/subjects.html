@@ -6,6 +6,16 @@
     <title>Dashboard</title>
   </head>
   <style>
+  .card-bg-1 { background: #fff7f0; }
+  .card-bg-2 { background: #f3e9ff; }
+  .card-bg-3 { background: #e9f9f0; }
+  .card-bg-4 { background: #f6fefc; }
+  .card-bg-5 { background: #f6f8ff; }
+  .icon-bg-1 { background: #ffe7ce; color: #b45309; }
+  .icon-bg-2 { background: #eadcff; color: #6b21a8; }
+  .icon-bg-3 { background: #dff3e6; color: #065f46; }
+  .icon-bg-4 { background: #e9f9f0; color: #15803d; }
+  .icon-bg-5 { background: #e6f0ff; color: #2563eb; }
     * {
       box-sizing: border-box;
       margin: 0;
@@ -397,74 +407,29 @@
       <div class="section" style="width: 100%;">
         <div class="available-quizzes" style="width: 100%;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <input type="text" placeholder="Search subject..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 1rem; width: 220px;" />
+            <input id="subject-search" type="text" placeholder="Search subject..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 1rem; width: 220px;" />
             <a style="color: #10b981; text-decoration: none; font-weight: 700">View All</a>
           </div>
-          <div style="background: #fff7f0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #ffe7ce; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #b45309;">
-              <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#b45309" stroke-width="2"/><path d="M8 12h8M12 8v8" stroke="#b45309" stroke-width="2" stroke-linecap="round"/></svg>
+          <div id="no-subjects-message" style="margin-top: 10px; color: #6b7280; text-align: center; display: none;">No subjects found.</div>
+          {% for subject in subjects %}
+          {% set card_class = 'card-bg-' ~ ((loop.index0 % 5) + 1) %}
+          {% set icon_class = 'icon-bg-' ~ ((loop.index0 % 5) + 1) %}
+          <div class="{{ card_class }} subject-card" style="border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;" data-name="{{ subject.name|lower }}" data-description="{{ subject.description|lower if subject.description }}">
+            <div class="{{ icon_class }}" style="width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+              📚
             </div>
             <div style="flex: 1;">
-              <div style="font-weight: 700; color: #111827;">Agronomy</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Study of crops and soils</div>
+              <div style="font-weight: 700; color: #111827;">{{ subject.name }}</div>
+              <div style="color: #6b7280; font-size: 0.95rem;">{{ subject.description or 'No description' }}</div>
             </div>
             <div style="text-align: right;">
-              <div style="font-weight: 600; color: #111827;">5 quizzes</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">120 students</div>
+              <div style="font-weight: 600; color: #111827;">{{ subject.quizzes|length if subject.quizzes is defined else 0 }} quizzes</div>
+               <!-- Removed students count -->
             </div>
           </div>
-          <div style="background: #f3e9ff; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #eadcff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #6b21a8;">
-              <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="12" height="12" rx="3" stroke="#6b21a8" stroke-width="2"/><path d="M9 9h6v6H9z" stroke="#6b21a8" stroke-width="2"/></svg>
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; color: #111827;">Horticulture</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Fruits, vegetables, and ornamental plants</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-weight: 600; color: #111827;">3 quizzes</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">80 students</div>
-            </div>
-          </div>
-          <div style="background: #e9f9f0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #dff3e6; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #065f46;">
-              <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v20M2 12h20" stroke="#065f46" stroke-width="2" stroke-linecap="round"/></svg>
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; color: #111827;">Soil Science</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Properties and management of soil</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-weight: 600; color: #111827;">4 quizzes</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">100 students</div>
-            </div>
-          </div>
-          <div style="background: #f6fefc; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #e9f9f0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #15803d;">
-              <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 17V7a5 5 0 0 1 10 0v10" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="17" r="5" stroke="#15803d" stroke-width="2"/></svg>
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; color: #111827;">Entomology</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Study of insects in agriculture</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-weight: 600; color: #111827;">2 quizzes</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">60 students</div>
-            </div>
-          </div>
-          <div style="background: #f6f8ff; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #e6f0ff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #2563eb;">
-              <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v10" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="7" y="10" width="10" height="7" rx="2" stroke="#2563eb" stroke-width="2"/></svg>
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; color: #111827;">Plant Pathology</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Diseases affecting crops</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-weight: 600; color: #111827;">3 quizzes</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">70 students</div>
-            </div>
-          </div>
+          {% else %}
+          <div style="margin-top: 20px; color: #6b7280; text-align: center;">No subjects found.</div>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -472,4 +437,25 @@
     {% include 'partials/create_subject_modal.html' %}
 
   </body>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('subject-search');
+        const subjectCards = document.querySelectorAll('.subject-card');
+        searchInput.addEventListener('input', function() {
+          const query = searchInput.value.trim().toLowerCase();
+          let anyVisible = false;
+          subjectCards.forEach(card => {
+            const name = card.getAttribute('data-name') || '';
+            const desc = card.getAttribute('data-description') || '';
+            if (name.includes(query) || desc.includes(query)) {
+              card.style.display = 'flex';
+              anyVisible = true;
+            } else {
+              card.style.display = 'none';
+            }
+          });
+          document.getElementById('no-subjects-message').style.display = anyVisible ? 'none' : 'block';
+        });
+      });
+    </script>
 </html>

@@ -26,7 +26,8 @@ def teacher_dashboard():
 
 @main.route("/teacher/subjects")
 def teacher_subjects():
-    return render_template("teacher/subjects.html")
+    subjects = Subject.query.all()
+    return render_template("teacher/subjects.html", subjects=subjects)
 
 
 @main.route("/teacher/subjects/create", methods=["GET", "POST"])
@@ -73,7 +74,8 @@ def teacher_quizzes():
 @main.route("/teacher/quizzes/create", methods=["GET", "POST"])
 def teacher_create_quiz():
     if request.method == "GET":
-        return render_template("teacher/create_quiz.html")
+        subjects = Subject.query.all()
+        return render_template("teacher/create_quiz.html", subjects=subjects)
 
     # POST: expect JSON payload describing quiz
     data = request.get_json()

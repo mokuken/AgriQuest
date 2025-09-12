@@ -38,10 +38,10 @@
                 <div class="quiz-details-form-col">
                   <label for="subject" class="quiz-details-label">Subject</label>
                   <select id="subject" name="subject" class="quiz-details-select">
-                    <option>Select subject</option>
-                    <option value="Agriculture" {% if edit_mode and quiz and quiz.subject and quiz.subject.name == 'Agriculture' %}selected{% endif %}>Agriculture</option>
-                    <option value="Biology" {% if edit_mode and quiz and quiz.subject and quiz.subject.name == 'Biology' %}selected{% endif %}>Biology</option>
-                    <option value="Machinery" {% if edit_mode and quiz and quiz.subject and quiz.subject.name == 'Machinery' %}selected{% endif %}>Machinery</option>
+                    <option value="">Select subject</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.name }}" {% if edit_mode and quiz and quiz.subject and quiz.subject.name == subject.name %}selected{% endif %}>{{ subject.name }}</option>
+                    {% endfor %}
                   </select>
                 </div>
               </div>
