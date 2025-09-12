@@ -389,17 +389,7 @@
           >
         </div>
         <div class="header-actions">
-          <a href="#"
-            style="
-              padding: 10px 15px;
-              border: none;
-              border-radius: 6px;
-              background-color: #4caf50;
-              color: white;
-              font-weight: 600;
-              text-decoration: none;
-            "
-          >
+          <a id="add-subject-btn" href="#" class="btn green" style="padding: 10px 15px; border-radius: 6px; text-decoration: none;">
             Add Subject
           </a>
         </div>
@@ -478,5 +468,8 @@
         </div>
       </div>
     </div>
+    
+    {% include 'partials/create_subject_modal.html' %}
+
   </body>
 </html>

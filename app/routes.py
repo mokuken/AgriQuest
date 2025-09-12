@@ -14,6 +14,10 @@ def teacher_dashboard():
 def teacher_subjects():
     return render_template("teacher/subjects.html")
 
+@main.route("/teacher/subjects/create")
+def teacher_create_subject():
+    return render_template("teacher/create_subject.html")
+
 @main.route("/teacher/quizzes")
 def teacher_quizzes():
     return render_template("teacher/quizzes.html")

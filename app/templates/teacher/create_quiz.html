@@ -39,46 +39,61 @@
         </div>
       </div>
       <div class="section" style="width: 100%;">
-        <div class="quiz-details-card">
-          <div class="quiz-details-title">Quiz Details</div>
-          <form>
-            <div class="quiz-details-form-row">
-              <div class="quiz-details-form-col">
-                <label for="quiz-title" class="quiz-details-label">Quiz Title</label>
-                <input type="text" id="quiz-title" name="quiz-title" placeholder="Enter quiz title" class="quiz-details-input" />
+        <div style="display: flex;flex-direction: row;gap: 20px;">
+          <div class="quiz-details-card" style="width: 70%;">
+            <div class="quiz-details-title">Quiz Details</div>
+            <form>
+              <div class="quiz-details-form-row">
+                <div class="quiz-details-form-col">
+                  <label for="quiz-title" class="quiz-details-label">Quiz Title</label>
+                  <input type="text" id="quiz-title" name="quiz-title" placeholder="Enter quiz title" class="quiz-details-input" />
+                </div>
+                <div class="quiz-details-form-col">
+                  <label for="subject" class="quiz-details-label">Subject</label>
+                  <select id="subject" name="subject" class="quiz-details-select">
+                    <option>Select subject</option>
+                    <option>Agriculture</option>
+                    <option>Biology</option>
+                    <option>Machinery</option>
+                  </select>
+                </div>
+              </div>
+              <div class="quiz-details-form-row">
+                <div class="quiz-details-form-col">
+                  <label for="time-limit" class="quiz-details-label">Time Limit (minutes)</label>
+                  <input type="number" id="time-limit" name="time-limit" value="30" class="quiz-details-input" />
+                </div>
+                <div class="quiz-details-form-col">
+                  <label for="difficulty" class="quiz-details-label">Difficulty Level</label>
+                  <select id="difficulty" name="difficulty" class="quiz-details-select">
+                    <option>Beginner</option>
+                    <option>Intermediate</option>
+                    <option>Advanced</option>
+                  </select>
+                </div>
               </div>
               <div class="quiz-details-form-col">
-                <label for="subject" class="quiz-details-label">Subject</label>
-                <select id="subject" name="subject" class="quiz-details-select">
-                  <option>Select subject</option>
-                  <option>Agriculture</option>
-                  <option>Biology</option>
-                  <option>Machinery</option>
-                </select>
+                <label for="description" class="quiz-details-label">Description</label>
+                <textarea id="description" name="description" placeholder="Brief description of the quiz" class="quiz-details-textarea"></textarea>
               </div>
-            </div>
-            <div class="quiz-details-form-row">
-              <div class="quiz-details-form-col">
-                <label for="time-limit" class="quiz-details-label">Time Limit (minutes)</label>
-                <input type="number" id="time-limit" name="time-limit" value="30" class="quiz-details-input" />
-              </div>
-              <div class="quiz-details-form-col">
-                <label for="difficulty" class="quiz-details-label">Difficulty Level</label>
-                <select id="difficulty" name="difficulty" class="quiz-details-select">
-                  <option>Beginner</option>
-                  <option>Intermediate</option>
-                  <option>Advanced</option>
-                </select>
-              </div>
-            </div>
-            <div class="quiz-details-form-col">
-              <label for="description" class="quiz-details-label">Description</label>
-              <textarea id="description" name="description" placeholder="Brief description of the quiz" class="quiz-details-textarea"></textarea>
-            </div>
-          </form>
+            </form>
+          </div>
+          <div class="quiz-preview-card" style="width: 30%; background: #fff; border-radius: 12px; padding: 18px; border: 1px solid #e6e6e6; box-shadow: 0 8px 20px rgba(37,99,235,0.06);">
+            <h3 style="margin: 0 0 12px 0; font-size: 1.1rem;">Quiz Preview</h3>
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Total Questions: <span style="float: right; font-weight: 700; color: #111827;">1</span></div>
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Time Limit: <span style="float: right; font-weight: 700; color: #111827;">30 min</span></div>
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Points: <span style="float: right; font-weight: 700; color: #111827;">10</span></div>
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Difficulty: <span style="float: right; font-weight: 700; color: #111827;">Beginner</span></div>
+            <hr style="margin: 12px 0; border: none; border-top: 1px solid #f1f1f1;" />
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Multiple Choice: <span style="float: right; font-weight: 700; color: #111827;">2</span></div>
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">True or False: <span style="float: right; font-weight: 700; color: #111827;">5</span></div>
+          </div>
         </div>
         <div class="questions-card">
-          <div class="questions-title">Questions</div>
+          <div style="display: flex; justify-content: space-between; align-items: center;margin-bottom: 20px;">
+            <h2>Questions</h2>
+            <button type="button" class="add-question-btn">+ Add Question</button>
+          </div>
           <div class="question-box">
             <div class="question-header">
               <div class="question-title">Question 1</div>
@@ -88,7 +103,6 @@
                   <option>True/False</option>
                 </select>
                 <button type="button" class="question-delete">&#128465;</button>
-                <button type="button" class="add-question-btn">+ Add Question</button>
               </div>
             </div>
             <div class="question-form-col" style="margin-bottom: 12px;">
