@@ -243,11 +243,24 @@
     if (form) {
       form.addEventListener("submit", function (e) {
         e.preventDefault();
-        // collect values (you can send via fetch to your create-subject endpoint)
         const data = new FormData(form);
-        // TODO: replace with actual POST to server
-        console.log("Submit subject", Object.fromEntries(data.entries()));
-        closeModal();
+        fetch("/teacher/subjects/create", {
+          method: "POST",
+          body: data
+        })
+        .then(res => res.json())
+        .then(result => {
+          if (result.status === "success") {
+            alert("Subject created successfully!");
+            closeModal();
+            form.reset();
+          } else {
+            alert(result.error || "Failed to create subject.");
+          }
+        })
+        .catch(() => {
+          alert("Error creating subject.");
+        });
       });
     }
   })();

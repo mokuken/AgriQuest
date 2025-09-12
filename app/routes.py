@@ -29,9 +29,35 @@ def teacher_subjects():
     return render_template("teacher/subjects.html")
 
 
-@main.route("/teacher/subjects/create")
+@main.route("/teacher/subjects/create", methods=["GET", "POST"])
 def teacher_create_subject():
-    return render_template("teacher/create_subject.html")
+    if request.method == "GET":
+        return render_template("teacher/create_subject.html")
+    # POST: create subject from modal
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
+    name = data.get('name')
+    code = data.get('code')
+    description = data.get('description')
+    category = data.get('category')
+    grade_level = data.get('grade_level')
+    if not name:
+        return jsonify({"error": "Subject name required"}), 400
+    # Check for duplicate
+    if Subject.query.filter_by(name=name).first():
+        return jsonify({"error": "Subject already exists"}), 400
+    subject = Subject(
+        name=name,
+        code=code,
+        description=description,
+        category=category,
+        grade_level=grade_level
+    )
+    db.session.add(subject)
+    db.session.commit()
+    return jsonify({"status": "success", "subject_id": subject.id}), 201
 
 
 @main.route("/teacher/quizzes")

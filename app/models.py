@@ -35,6 +35,10 @@ class Teacher(db.Model):
 class Subject(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(120), unique=True, nullable=False)
+	code = db.Column(db.String(20), unique=True)
+	description = db.Column(db.Text)
+	category = db.Column(db.String(50))
+	grade_level = db.Column(db.String(20))
 	quizzes = db.relationship('Quiz', backref='subject', lazy=True)
 
 
