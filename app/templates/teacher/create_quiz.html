@@ -32,35 +32,35 @@
               <div class="quiz-details-form-row">
                 <div class="quiz-details-form-col">
                   <label for="quiz-title" class="quiz-details-label">Quiz Title</label>
-                  <input type="text" id="quiz-title" name="quiz-title" placeholder="Enter quiz title" class="quiz-details-input" />
+                  <input type="text" id="quiz-title" name="quiz-title" placeholder="Enter quiz title" class="quiz-details-input" value="{{ quiz.title if edit_mode and quiz else '' }}" />
                 </div>
                 <div class="quiz-details-form-col">
                   <label for="subject" class="quiz-details-label">Subject</label>
                   <select id="subject" name="subject" class="quiz-details-select">
                     <option>Select subject</option>
-                    <option>Agriculture</option>
-                    <option>Biology</option>
-                    <option>Machinery</option>
+                    <option value="Agriculture" {% if edit_mode and quiz and quiz.subject and quiz.subject.name == 'Agriculture' %}selected{% endif %}>Agriculture</option>
+                    <option value="Biology" {% if edit_mode and quiz and quiz.subject and quiz.subject.name == 'Biology' %}selected{% endif %}>Biology</option>
+                    <option value="Machinery" {% if edit_mode and quiz and quiz.subject and quiz.subject.name == 'Machinery' %}selected{% endif %}>Machinery</option>
                   </select>
                 </div>
               </div>
               <div class="quiz-details-form-row">
                 <div class="quiz-details-form-col">
                   <label for="time-limit" class="quiz-details-label">Time Limit (minutes)</label>
-                  <input type="number" id="time-limit" name="time-limit" value="30" class="quiz-details-input" />
+                  <input type="number" id="time-limit" name="time-limit" value="{{ quiz.time_limit if edit_mode and quiz else 30 }}" class="quiz-details-input" />
                 </div>
                 <div class="quiz-details-form-col">
                   <label for="difficulty" class="quiz-details-label">Difficulty Level</label>
                   <select id="difficulty" name="difficulty" class="quiz-details-select">
-                    <option>Beginner</option>
-                    <option>Intermediate</option>
-                    <option>Advanced</option>
+                    <option value="Beginner" {% if edit_mode and quiz and quiz.difficulty == 'Beginner' %}selected{% endif %}>Beginner</option>
+                    <option value="Intermediate" {% if edit_mode and quiz and quiz.difficulty == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+                    <option value="Advanced" {% if edit_mode and quiz and quiz.difficulty == 'Advanced' %}selected{% endif %}>Advanced</option>
                   </select>
                 </div>
               </div>
               <div class="quiz-details-form-col">
                 <label for="description" class="quiz-details-label">Description</label>
-                <textarea id="description" name="description" placeholder="Brief description of the quiz" class="quiz-details-textarea"></textarea>
+                <textarea id="description" name="description" placeholder="Brief description of the quiz" class="quiz-details-textarea">{{ quiz.description if edit_mode and quiz else '' }}</textarea>
               </div>
             </form>
           </div>
@@ -81,51 +81,106 @@
             <button type="button" id="add-question-btn" class="add-question-btn">+ Add Question</button>
           </div>
           <div id="questions-container">
-            <div class="question-box" data-index="1">
-              <div class="question-header">
-                <div class="question-title">Question 1</div>
-                <div class="question-actions">
-                  <select class="question-select">
-                    <option value="mc">Multiple Choice</option>
-                    <option value="tf">True/False</option>
+            {% if edit_mode and quiz and quiz.questions %}
+              {% for q in quiz.questions %}
+                <div class="question-box" data-index="{{ loop.index }}">
+                  <div class="question-header">
+                    <div class="question-title">Question {{ loop.index }}</div>
+                    <div class="question-actions">
+                      <select class="question-select">
+                        <option value="mc" {% if q.type == 'mc' %}selected{% endif %}>Multiple Choice</option>
+                        <option value="tf" {% if q.type == 'tf' %}selected{% endif %}>True/False</option>
+                      </select>
+                      <button type="button" class="question-delete" style="background-color: #e53935; color: #fff; border: none; padding: 6px 14px; border-radius: 4px;font-size: 1rem;">Delete</button>
+                    </div>
+                  </div>
+                  <div class="question-form-col" style="margin-bottom: 12px;">
+                    <label class="question-label">Question Text</label>
+                    <textarea placeholder="Enter your question here" class="question-textarea">{{ q.text }}</textarea>
+                  </div>
+                  <div class="question-form-row mc-row" {% if q.type != 'mc' %}style="display:none;"{% endif %}>
+                    <div class="question-form-col">
+                      <label class="question-label">Option A</label>
+                      <input type="text" placeholder="Enter option A" class="question-input" value="{{ q.options[0].text if q.type == 'mc' and q.options|length > 0 else '' }}" />
+                    </div>
+                    <div class="question-form-col">
+                      <label class="question-label">Option B</label>
+                      <input type="text" placeholder="Enter option B" class="question-input" value="{{ q.options[1].text if q.type == 'mc' and q.options|length > 1 else '' }}" />
+                    </div>
+                  </div>
+                  <div class="question-form-row mc-row" {% if q.type != 'mc' %}style="display:none;"{% endif %}>
+                    <div class="question-form-col">
+                      <label class="question-label">Option C</label>
+                      <input type="text" placeholder="Enter option C" class="question-input" value="{{ q.options[2].text if q.type == 'mc' and q.options|length > 2 else '' }}" />
+                    </div>
+                    <div class="question-form-col">
+                      <label class="question-label">Option D</label>
+                      <input type="text" placeholder="Enter option D" class="question-input" value="{{ q.options[3].text if q.type == 'mc' and q.options|length > 3 else '' }}" />
+                    </div>
+                  </div>
+                  <div class="question-form-col answer-row">
+                    <label class="question-label">Correct Answer</label>
+                    <select class="question-select-answer">
+                      {% if q.type == 'mc' %}
+                        <option value="A" {% if q.correct_answer == 'A' %}selected{% endif %}>Option A</option>
+                        <option value="B" {% if q.correct_answer == 'B' %}selected{% endif %}>Option B</option>
+                        <option value="C" {% if q.correct_answer == 'C' %}selected{% endif %}>Option C</option>
+                        <option value="D" {% if q.correct_answer == 'D' %}selected{% endif %}>Option D</option>
+                      {% else %}
+                        <option value="True" {% if q.correct_answer == 'True' %}selected{% endif %}>True</option>
+                        <option value="False" {% if q.correct_answer == 'False' %}selected{% endif %}>False</option>
+                      {% endif %}
+                    </select>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="question-box" data-index="1">
+                <div class="question-header">
+                  <div class="question-title">Question 1</div>
+                  <div class="question-actions">
+                    <select class="question-select">
+                      <option value="mc">Multiple Choice</option>
+                      <option value="tf">True/False</option>
+                    </select>
+                    <button type="button" class="question-delete" style="background-color: #e53935; color: #fff; border: none; padding: 6px 14px; border-radius: 4px;font-size: 1rem;">Delete</button>
+                  </div>
+                </div>
+                <div class="question-form-col" style="margin-bottom: 12px;">
+                  <label class="question-label">Question Text</label>
+                  <textarea placeholder="Enter your question here" class="question-textarea"></textarea>
+                </div>
+                <div class="question-form-row mc-row">
+                  <div class="question-form-col">
+                    <label class="question-label">Option A</label>
+                    <input type="text" placeholder="Enter option A" class="question-input" />
+                  </div>
+                  <div class="question-form-col">
+                    <label class="question-label">Option B</label>
+                    <input type="text" placeholder="Enter option B" class="question-input" />
+                  </div>
+                </div>
+                <div class="question-form-row mc-row">
+                  <div class="question-form-col">
+                    <label class="question-label">Option C</label>
+                    <input type="text" placeholder="Enter option C" class="question-input" />
+                  </div>
+                  <div class="question-form-col">
+                    <label class="question-label">Option D</label>
+                    <input type="text" placeholder="Enter option D" class="question-input" />
+                  </div>
+                </div>
+                <div class="question-form-col answer-row">
+                  <label class="question-label">Correct Answer</label>
+                  <select class="question-select-answer">
+                    <option value="A">Option A</option>
+                    <option value="B">Option B</option>
+                    <option value="C">Option C</option>
+                    <option value="D">Option D</option>
                   </select>
-                  <button type="button" class="question-delete" style="background-color: #e53935; color: #fff; border: none; padding: 6px 14px; border-radius: 4px;font-size: 1rem;">Delete</button>
                 </div>
               </div>
-              <div class="question-form-col" style="margin-bottom: 12px;">
-                <label class="question-label">Question Text</label>
-                <textarea placeholder="Enter your question here" class="question-textarea"></textarea>
-              </div>
-              <div class="question-form-row mc-row">
-                <div class="question-form-col">
-                  <label class="question-label">Option A</label>
-                  <input type="text" placeholder="Enter option A" class="question-input" />
-                </div>
-                <div class="question-form-col">
-                  <label class="question-label">Option B</label>
-                  <input type="text" placeholder="Enter option B" class="question-input" />
-                </div>
-              </div>
-              <div class="question-form-row mc-row">
-                <div class="question-form-col">
-                  <label class="question-label">Option C</label>
-                  <input type="text" placeholder="Enter option C" class="question-input" />
-                </div>
-                <div class="question-form-col">
-                  <label class="question-label">Option D</label>
-                  <input type="text" placeholder="Enter option D" class="question-input" />
-                </div>
-              </div>
-              <div class="question-form-col answer-row">
-                <label class="question-label">Correct Answer</label>
-                <select class="question-select-answer">
-                  <option value="A">Option A</option>
-                  <option value="B">Option B</option>
-                  <option value="C">Option C</option>
-                  <option value="D">Option D</option>
-                </select>
-              </div>
-            </div>
+            {% endif %}
           </div>
           <template id="question-template">
             <div class="question-box" data-index="__IDX__">
@@ -176,7 +231,7 @@
           </template>
         </div>
         <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:18px;">
-          <button id="save-quiz-btn" class="add-question-btn" style="background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius:8px;">Save Quiz</button>
+          <button id="save-quiz-btn" class="add-question-btn" style="background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius:8px;">{% if edit_mode %}Update Quiz{% else %}Save Quiz{% endif %}</button>
           <div id="save-status" style="align-self:center;color:green;font-weight:600;display:none;"></div>
         </div>
         <script>

@@ -375,7 +375,7 @@
                   <div style="color: #6b7280; font-size: 0.95rem;">{{ quiz.subject.name if quiz.subject else 'Unspecified' }}  {{ quiz.questions|length }} questions</div>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                  <a href="#" class="btn blue">Edit</a>
+                  <a href="{{ url_for('main.teacher_edit_quiz', quiz_id=quiz.id) }}" class="btn blue">Edit</a>
                   <a href="#" class="btn green">Delete</a>
                 </div>
               </div>

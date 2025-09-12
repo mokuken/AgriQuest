@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, session
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, flash
 
 from .models import db, Subject, Quiz, Question, Option
 
@@ -112,3 +112,64 @@ def teacher_create_quiz():
 @main.route("/teacher/students")
 def teacher_students():
     return render_template("teacher/students.html")
+
+
+# Edit quiz route
+@main.route("/teacher/quizzes/edit/<int:quiz_id>", methods=["GET", "POST"])
+def teacher_edit_quiz(quiz_id):
+    teacher_id = session.get('teacher_id')
+    quiz = Quiz.query.filter_by(id=quiz_id, teacher_id=teacher_id).first()
+    if not quiz:
+        flash("Quiz not found or access denied.", "error")
+        return redirect(url_for('main.teacher_quizzes'))
+
+    if request.method == "GET":
+        return render_template("teacher/create_quiz.html", quiz=quiz, edit_mode=True)
+
+    # POST: update quiz
+    data = request.get_json() or request.form
+    quiz.title = data.get('title', quiz.title)
+    quiz.description = data.get('description', quiz.description)
+    quiz.time_limit = int(data.get('time_limit', quiz.time_limit))
+    quiz.difficulty = data.get('difficulty', quiz.difficulty)
+    subject_name = data.get('subject')
+    if subject_name:
+        subject = Subject.query.filter_by(name=subject_name).first()
+        if not subject:
+            subject = Subject(name=subject_name)
+            db.session.add(subject)
+            db.session.flush()
+        quiz.subject = subject
+
+    # Update questions
+    questions = data.get('questions', [])
+    # Remove old questions/options
+    for q in quiz.questions:
+        for opt in q.options:
+            db.session.delete(opt)
+        db.session.delete(q)
+    db.session.flush()
+
+    # Add new questions/options
+    for q in questions:
+        qtype = q.get('type')
+        qtext = q.get('text')
+        correct = q.get('correct')
+        opts = q.get('options', [])
+        question = Question(quiz=quiz, type=qtype, text=qtext, correct_answer=str(correct))
+        db.session.add(question)
+        db.session.flush()
+        if qtype == 'mc':
+            for opt in opts:
+                key = opt.get('key')
+                text = opt.get('text')
+                if key and text is not None:
+                    option = Option(question=question, key=key, text=text)
+                    db.session.add(option)
+
+    db.session.commit()
+    if request.is_json:
+        return jsonify({"status": "success", "quiz_id": quiz.id}), 200
+    else:
+        flash("Quiz updated successfully!", "success")
+        return redirect(url_for('main.teacher_quizzes'))
