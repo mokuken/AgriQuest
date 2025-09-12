@@ -23,20 +23,6 @@
             today.</span
           >
         </div>
-        <div class="header-actions">
-          <button
-            style="
-              padding: 10px 15px;
-              border: none;
-              border-radius: 6px;
-              background-color: #4caf50;
-              color: white;
-              font-weight: 600;
-            "
-          >
-            Create Quiz
-          </button>
-        </div>
       </div>
       <div class="section" style="width: 100%;">
         <div style="display: flex;flex-direction: row;gap: 20px;">
@@ -80,66 +66,216 @@
           </div>
           <div class="quiz-preview-card" style="width: 30%; background: #fff; border-radius: 12px; padding: 18px; border: 1px solid #e6e6e6; box-shadow: 0 8px 20px rgba(37,99,235,0.06);">
             <h3 style="margin: 0 0 12px 0; font-size: 1.1rem;">Quiz Preview</h3>
-            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Total Questions: <span style="float: right; font-weight: 700; color: #111827;">1</span></div>
-            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Time Limit: <span style="float: right; font-weight: 700; color: #111827;">30 min</span></div>
-            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Points: <span style="float: right; font-weight: 700; color: #111827;">10</span></div>
-            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Difficulty: <span style="float: right; font-weight: 700; color: #111827;">Beginner</span></div>
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Total Questions: <span id="preview-total-questions" style="float: right; font-weight: 700; color: #111827;">1</span></div>
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Time Limit: <span id="preview-time-limit" style="float: right; font-weight: 700; color: #111827;">30 min</span></div>
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Points: <span id="preview-points" style="float: right; font-weight: 700; color: #111827;">10</span></div>
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Difficulty: <span id="preview-difficulty" style="float: right; font-weight: 700; color: #111827;">Beginner</span></div>
             <hr style="margin: 12px 0; border: none; border-top: 1px solid #f1f1f1;" />
-            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Multiple Choice: <span style="float: right; font-weight: 700; color: #111827;">2</span></div>
-            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">True or False: <span style="float: right; font-weight: 700; color: #111827;">5</span></div>
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">Multiple Choice: <span id="preview-mc" style="float: right; font-weight: 700; color: #111827;">1</span></div>
+            <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">True or False: <span id="preview-tf" style="float: right; font-weight: 700; color: #111827;">0</span></div>
           </div>
         </div>
         <div class="questions-card">
           <div style="display: flex; justify-content: space-between; align-items: center;margin-bottom: 20px;">
             <h2>Questions</h2>
-            <button type="button" class="add-question-btn">+ Add Question</button>
+            <button type="button" id="add-question-btn" class="add-question-btn">+ Add Question</button>
           </div>
-          <div class="question-box">
-            <div class="question-header">
-              <div class="question-title">Question 1</div>
-              <div class="question-actions">
-                <select class="question-select">
-                  <option>Multiple Choice</option>
-                  <option>True/False</option>
+          <div id="questions-container">
+            <div class="question-box" data-index="1">
+              <div class="question-header">
+                <div class="question-title">Question 1</div>
+                <div class="question-actions">
+                  <select class="question-select">
+                    <option value="mc">Multiple Choice</option>
+                    <option value="tf">True/False</option>
+                  </select>
+                  <button type="button" class="question-delete" style="background-color: #e53935; color: #fff; border: none; padding: 6px 14px; border-radius: 4px;font-size: 1rem;">Delete</button>
+                </div>
+              </div>
+              <div class="question-form-col" style="margin-bottom: 12px;">
+                <label class="question-label">Question Text</label>
+                <textarea placeholder="Enter your question here" class="question-textarea"></textarea>
+              </div>
+              <div class="question-form-row mc-row">
+                <div class="question-form-col">
+                  <label class="question-label">Option A</label>
+                  <input type="text" placeholder="Enter option A" class="question-input" />
+                </div>
+                <div class="question-form-col">
+                  <label class="question-label">Option B</label>
+                  <input type="text" placeholder="Enter option B" class="question-input" />
+                </div>
+              </div>
+              <div class="question-form-row mc-row">
+                <div class="question-form-col">
+                  <label class="question-label">Option C</label>
+                  <input type="text" placeholder="Enter option C" class="question-input" />
+                </div>
+                <div class="question-form-col">
+                  <label class="question-label">Option D</label>
+                  <input type="text" placeholder="Enter option D" class="question-input" />
+                </div>
+              </div>
+              <div class="question-form-col answer-row">
+                <label class="question-label">Correct Answer</label>
+                <select class="question-select-answer">
+                  <option value="A">Option A</option>
+                  <option value="B">Option B</option>
+                  <option value="C">Option C</option>
+                  <option value="D">Option D</option>
                 </select>
-                <button type="button" class="question-delete">&#128465;</button>
               </div>
-            </div>
-            <div class="question-form-col" style="margin-bottom: 12px;">
-              <label class="question-label">Question Text</label>
-              <textarea placeholder="Enter your question here" class="question-textarea"></textarea>
-            </div>
-            <div class="question-form-row">
-              <div class="question-form-col">
-                <label class="question-label">Option A</label>
-                <input type="text" placeholder="Enter option A" class="question-input" />
-              </div>
-              <div class="question-form-col">
-                <label class="question-label">Option B</label>
-                <input type="text" placeholder="Enter option B" class="question-input" />
-              </div>
-            </div>
-            <div class="question-form-row">
-              <div class="question-form-col">
-                <label class="question-label">Option C</label>
-                <input type="text" placeholder="Enter option C" class="question-input" />
-              </div>
-              <div class="question-form-col">
-                <label class="question-label">Option D</label>
-                <input type="text" placeholder="Enter option D" class="question-input" />
-              </div>
-            </div>
-            <div class="question-form-col">
-              <label class="question-label">Correct Answer</label>
-              <select class="question-select-answer">
-                <option>Option A</option>
-                <option>Option B</option>
-                <option>Option C</option>
-                <option>Option D</option>
-              </select>
             </div>
           </div>
+          <template id="question-template">
+            <div class="question-box" data-index="__IDX__">
+              <div class="question-header">
+                <div class="question-title">Question __NUM__</div>
+                <div class="question-actions">
+                  <select class="question-select">
+                    <option value="mc">Multiple Choice</option>
+                    <option value="tf">True/False</option>
+                  </select>
+                  <button type="button" class="question-delete" style="background-color: #e53935; color: #fff; border: none; padding: 6px 14px; border-radius: 4px;font-size: 1rem;">Delete</button>
+                </div>
+              </div>
+              <div class="question-form-col" style="margin-bottom: 12px;">
+                <label class="question-label">Question Text</label>
+                <textarea placeholder="Enter your question here" class="question-textarea"></textarea>
+              </div>
+              <div class="question-form-row mc-row">
+                <div class="question-form-col">
+                  <label class="question-label">Option A</label>
+                  <input type="text" placeholder="Enter option A" class="question-input" />
+                </div>
+                <div class="question-form-col">
+                  <label class="question-label">Option B</label>
+                  <input type="text" placeholder="Enter option B" class="question-input" />
+                </div>
+              </div>
+              <div class="question-form-row mc-row">
+                <div class="question-form-col">
+                  <label class="question-label">Option C</label>
+                  <input type="text" placeholder="Enter option C" class="question-input" />
+                </div>
+                <div class="question-form-col">
+                  <label class="question-label">Option D</label>
+                  <input type="text" placeholder="Enter option D" class="question-input" />
+                </div>
+              </div>
+              <div class="question-form-col answer-row">
+                <label class="question-label">Correct Answer</label>
+                <select class="question-select-answer">
+                  <option value="A">Option A</option>
+                  <option value="B">Option B</option>
+                  <option value="C">Option C</option>
+                  <option value="D">Option D</option>
+                </select>
+              </div>
+            </div>
+          </template>
         </div>
+        <script>
+          (function(){
+            const container = document.getElementById('questions-container');
+            const addBtn = document.getElementById('add-question-btn');
+            const template = document.getElementById('question-template').innerHTML;
+            const timeLimitInput = document.getElementById('time-limit');
+            const difficultySelect = document.getElementById('difficulty');
+
+            function updatePreview(){
+              const boxes = container.querySelectorAll('.question-box');
+              const total = boxes.length;
+              let mc = 0, tf = 0;
+              boxes.forEach(b => {
+                const t = b.querySelector('.question-select').value;
+                if(t === 'mc') mc++; else if(t === 'tf') tf++;
+              });
+              document.getElementById('preview-total-questions').textContent = total;
+              document.getElementById('preview-mc').textContent = mc;
+              document.getElementById('preview-tf').textContent = tf;
+              document.getElementById('preview-time-limit').textContent = (timeLimitInput && timeLimitInput.value ? timeLimitInput.value + ' min' : '0 min');
+              document.getElementById('preview-difficulty').textContent = (difficultySelect && difficultySelect.value ? difficultySelect.value : '');
+              // Points: simple rule: 2 points per question
+              document.getElementById('preview-points').textContent = (total * 2);
+            }
+
+            function wireQuestion(box){
+              const select = box.querySelector('.question-select');
+              const deleteBtn = box.querySelector('.question-delete');
+              const onTypeChange = (e)=>{
+                const val = e.target.value;
+                const mcRows = box.querySelectorAll('.mc-row');
+                if(val === 'tf'){
+                    mcRows.forEach(r => r.style.display = 'none');
+                    // replace correct answer with True/False and try to preserve truthy mapping
+                    const ans = box.querySelector('.question-select-answer');
+                    if(ans){
+                      // if current value maps to true/false (e.g., 'True' or 'False'), keep it, else default to 'True'
+                      const current = ans.value && ans.value.toString().toLowerCase();
+                      ans.innerHTML = '<option value="True">True</option><option value="False">False</option>';
+                      if(current === 'true' || current === 'false'){
+                        ans.value = current === 'true' ? 'True' : 'False';
+                      } else {
+                        ans.value = 'True';
+                      }
+                    }
+                  } else {
+                    mcRows.forEach(r => r.style.display = 'flex');
+                    const ans = box.querySelector('.question-select-answer');
+                    if(ans){
+                      // attempt to map True/False back to an option if possible; otherwise default to A
+                      const current = ans.value && ans.value.toString().toLowerCase();
+                      ans.innerHTML = '<option value="A">Option A</option><option value="B">Option B</option><option value="C">Option C</option><option value="D">Option D</option>';
+                      if(current === 'true' || current === 'false'){
+                        // no mapping available, default to A
+                        ans.value = 'A';
+                      } else if(['a','b','c','d'].includes(current)){
+                        ans.value = current.toUpperCase();
+                      } else {
+                        ans.value = 'A';
+                      }
+                    }
+                  }
+                updatePreview();
+              };
+              select.addEventListener('change', onTypeChange);
+              // initialize based on current value
+              onTypeChange({ target: select });
+              deleteBtn.addEventListener('click', ()=>{
+                box.remove();
+                // renumber
+                [...container.querySelectorAll('.question-box')].forEach((b,i)=>{
+                  b.dataset.index = i+1;
+                  const title = b.querySelector('.question-title');
+                  if(title) title.textContent = 'Question ' + (i+1);
+                });
+                updatePreview();
+              });
+            }
+
+            // wire existing
+            container.querySelectorAll('.question-box').forEach(wireQuestion);
+
+            addBtn.addEventListener('click', ()=>{
+              const idx = container.querySelectorAll('.question-box').length + 1;
+              const html = template.replace(/__IDX__/g, idx).replace(/__NUM__/g, idx);
+              const wrapper = document.createElement('div');
+              wrapper.innerHTML = html;
+              const newBox = wrapper.firstElementChild;
+              container.appendChild(newBox);
+              wireQuestion(newBox);
+              updatePreview();
+            });
+
+            // wire time and difficulty to preview
+            if(timeLimitInput) timeLimitInput.addEventListener('input', updatePreview);
+            if(difficultySelect) difficultySelect.addEventListener('change', updatePreview);
+
+            // initial preview update
+            updatePreview();
+          })();
+        </script>
       </div>
     </div>
   </body>
