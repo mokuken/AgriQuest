@@ -17,6 +17,13 @@
     width: 100%;
     box-shadow: 0 10px 30px rgba(2, 6, 23, 0.2);
     padding: 18px;
+    transform: scale(0.7);
+    opacity: 0;
+    transition: transform 0.25s cubic-bezier(.42,0,.58,1), opacity 0.2s;
+  }
+  .modal-overlay.show .modal-content {
+    transform: scale(1);
+    opacity: 1;
   }
   @media (max-width: 640px) {
     .modal-content {
@@ -208,11 +215,17 @@
       e && e.preventDefault();
       modal.style.display = "flex";
       modal.setAttribute("aria-hidden", "false");
+      setTimeout(function() {
+        modal.classList.add("show");
+      }, 10);
     }
     function closeModal(e) {
       e && e.preventDefault();
-      modal.style.display = "none";
-      modal.setAttribute("aria-hidden", "true");
+      modal.classList.remove("show");
+      setTimeout(function() {
+        modal.style.display = "none";
+        modal.setAttribute("aria-hidden", "true");
+      }, 250);
     }
 
     if (btn) btn.addEventListener("click", openModal);

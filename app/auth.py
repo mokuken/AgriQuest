@@ -73,4 +73,6 @@ def register_teacher():
 
 @auth.route("/logout")
 def logout():
-    return render_template("logout.html")
+    session.clear()
+    flash("You have been logged out.")
+    return redirect(url_for("auth.login_teacher"))
