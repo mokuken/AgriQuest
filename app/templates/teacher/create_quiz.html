@@ -75,7 +75,7 @@
             <div style="color: #6b7280; font-size: 0.95rem; padding: 8px 0;">True or False: <span id="preview-tf" style="float: right; font-weight: 700; color: #111827;">0</span></div>
           </div>
         </div>
-        <div class="questions-card">
+            <div class="questions-card">
           <div style="display: flex; justify-content: space-between; align-items: center;margin-bottom: 20px;">
             <h2>Questions</h2>
             <button type="button" id="add-question-btn" class="add-question-btn">+ Add Question</button>
@@ -174,6 +174,10 @@
               </div>
             </div>
           </template>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:18px;">
+          <button id="save-quiz-btn" class="add-question-btn" style="background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius:8px;">Save Quiz</button>
+          <div id="save-status" style="align-self:center;color:green;font-weight:600;display:none;"></div>
         </div>
         <script>
           (function(){
@@ -274,6 +278,69 @@
 
             // initial preview update
             updatePreview();
+
+            // Save quiz logic
+            const saveBtn = document.getElementById('save-quiz-btn');
+            const statusEl = document.getElementById('save-status');
+
+            function collectQuizPayload(){
+              const title = document.getElementById('quiz-title').value.trim();
+              const subject = document.getElementById('subject').value;
+              const time_limit = parseInt(document.getElementById('time-limit').value) || 0;
+              const difficulty = document.getElementById('difficulty').value;
+              const description = document.getElementById('description').value;
+              const questionBoxes = [...document.querySelectorAll('.question-box')];
+              const questions = questionBoxes.map(box => {
+                const type = box.querySelector('.question-select').value;
+                const text = box.querySelector('.question-textarea').value.trim();
+                const correct = box.querySelector('.question-select-answer').value;
+                const options = [];
+                if(type === 'mc'){
+                  const inputs = box.querySelectorAll('.question-input');
+                  const keys = ['A','B','C','D'];
+                  inputs.forEach((inp,i)=>{
+                    options.push({ key: keys[i], text: inp.value });
+                  });
+                }
+                return { type, text, correct, options };
+              });
+
+              return { title, subject, time_limit, difficulty, description, questions };
+            }
+
+            saveBtn.addEventListener('click', ()=>{
+              statusEl.style.display = 'none';
+              const payload = collectQuizPayload();
+              if(!payload.title){
+                statusEl.style.display = 'block';
+                statusEl.style.color = 'red';
+                statusEl.textContent = 'Please enter a quiz title.';
+                return;
+              }
+
+              fetch(window.location.pathname, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              }).then(r => r.json().then(b => ({ status: r.status, body: b })))
+                .then(({ status, body }) => {
+                  if(status >= 200 && status < 300){
+                    statusEl.style.display = 'block';
+                    statusEl.style.color = 'green';
+                    statusEl.textContent = 'Quiz saved successfully (ID: ' + body.quiz_id + ')';
+                    // optionally redirect to quizzes list after a short delay
+                    setTimeout(()=>{ window.location.href = '/teacher/quizzes'; }, 900);
+                  } else {
+                    statusEl.style.display = 'block';
+                    statusEl.style.color = 'red';
+                    statusEl.textContent = (body && body.error) ? body.error : 'Failed to save quiz';
+                  }
+                }).catch(err => {
+                  statusEl.style.display = 'block';
+                  statusEl.style.color = 'red';
+                  statusEl.textContent = 'Network or server error';
+                });
+            });
           })();
         </script>
       </div>

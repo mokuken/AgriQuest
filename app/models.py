@@ -1,8 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# Assuming db is initialized in your app's __init__.py
+# db instance used by app.__init__
 db = SQLAlchemy()
+
 
 class Student(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -16,6 +17,7 @@ class Student(db.Model):
 	def check_password(self, password):
 		return check_password_hash(self.password_hash, password)
 
+
 class Teacher(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(100), nullable=False)
@@ -27,3 +29,39 @@ class Teacher(db.Model):
 
 	def check_password(self, password):
 		return check_password_hash(self.password_hash, password)
+
+
+# New models for quizzes
+class Subject(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(120), unique=True, nullable=False)
+	quizzes = db.relationship('Quiz', backref='subject', lazy=True)
+
+
+class Quiz(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	title = db.Column(db.String(200), nullable=False)
+	description = db.Column(db.Text)
+	time_limit = db.Column(db.Integer, default=0)  # minutes
+	difficulty = db.Column(db.String(50))
+	teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable=True)
+	subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True)
+	questions = db.relationship('Question', backref='quiz', cascade='all, delete-orphan', lazy=True)
+
+
+class Question(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
+	type = db.Column(db.String(20), nullable=False)  # 'mc' or 'tf'
+	text = db.Column(db.Text, nullable=False)
+	# For MC questions, store the correct option key (A/B/C/D). For TF, store 'True'/'False'.
+	correct_answer = db.Column(db.String(10), nullable=False)
+	options = db.relationship('Option', backref='question', cascade='all, delete-orphan', lazy=True)
+
+
+class Option(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+	key = db.Column(db.String(5), nullable=False)  # 'A','B','C','D' or other
+	text = db.Column(db.Text, nullable=False)
+
