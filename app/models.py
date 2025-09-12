@@ -47,6 +47,7 @@ class Quiz(db.Model):
 	teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable=True)
 	subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True)
 	questions = db.relationship('Question', backref='quiz', cascade='all, delete-orphan', lazy=True)
+	created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
 
 class Question(db.Model):

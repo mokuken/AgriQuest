@@ -12,7 +12,16 @@ def select_role():
 
 @main.route("/teacher/dashboard")
 def teacher_dashboard():
-    return render_template("teacher/dashboard.html")
+    teacher_id = session.get('teacher_id')
+    recent_quizzes = []
+    if teacher_id:
+        recent_quizzes = (
+            Quiz.query.filter_by(teacher_id=teacher_id)
+            .order_by(Quiz.id.desc())
+            .limit(5)
+            .all()
+        )
+    return render_template("teacher/dashboard.html", recent_quizzes=recent_quizzes)
 
 
 @main.route("/teacher/subjects")
