@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, session
 
 from .models import db, Subject, Quiz, Question, Option
 
@@ -27,7 +27,12 @@ def teacher_create_subject():
 
 @main.route("/teacher/quizzes")
 def teacher_quizzes():
-    return render_template("teacher/quizzes.html")
+    from .models import Quiz
+    teacher_id = session.get('teacher_id')
+    quizzes = []
+    if teacher_id:
+        quizzes = Quiz.query.filter_by(teacher_id=teacher_id).order_by(Quiz.id.desc()).all()
+    return render_template("teacher/quizzes.html", quizzes=quizzes)
 
 
 @main.route("/teacher/quizzes/create", methods=["GET", "POST"])
@@ -50,6 +55,11 @@ def teacher_create_quiz():
     if not title or not subject_name:
         return jsonify({"error": "Missing required fields: title and subject"}), 400
 
+    # ensure a teacher is logged in
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        return jsonify({"error": "Authentication required: teacher must be logged in"}), 401
+
     try:
         # get or create subject
         subject = Subject.query.filter_by(name=subject_name).first()
@@ -58,7 +68,7 @@ def teacher_create_quiz():
             db.session.add(subject)
             db.session.flush()
 
-        quiz = Quiz(title=title, description=description, time_limit=time_limit or 0, difficulty=difficulty, subject=subject)
+        quiz = Quiz(title=title, description=description, time_limit=time_limit or 0, difficulty=difficulty, subject=subject, teacher_id=teacher_id)
         db.session.add(quiz)
         db.session.flush()
 
