@@ -1,0 +1,241 @@
+<style>
+  /* Modal overlay */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+  }
+  .modal-content {
+    background: #ffffff;
+    border-radius: 12px;
+    max-width: 900px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(2, 6, 23, 0.2);
+    padding: 18px;
+  }
+  @media (max-width: 640px) {
+    .modal-content {
+      max-width: 100%;
+      padding: 12px;
+    }
+  }
+</style>
+
+<!-- Subject modal -->
+<div
+  id="subject-modal"
+  class="modal-overlay"
+  aria-hidden="true"
+  style="display: none"
+>
+  <div
+    class="modal-content"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    style="width: 600px; padding: 30px"
+  >
+    <header
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      "
+    >
+      <h2
+        id="modal-title"
+        style="font-size: 1.25rem; color: #111827; margin: 0; font-weight: 700"
+      >
+        Subject Information
+      </h2>
+      <button
+        id="modal-close"
+        aria-label="Close modal"
+        style="
+          background: transparent;
+          border: none;
+          font-weight: 700;
+          color: #4b5563;
+          cursor: pointer;
+          font-size: 1rem;
+        "
+      >
+        ✕
+      </button>
+    </header>
+    <form
+      id="subject-form"
+      style="display: flex; flex-direction: column; gap: 12px"
+    >
+      <div style="display: flex; gap: 12px">
+        <div style="flex: 1">
+          <label style="font-weight: 600; color: #374151; font-size: 0.95rem"
+            >Subject Name</label
+          >
+          <input
+            name="name"
+            type="text"
+            placeholder="e.g. Agriculture Science"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 6px;
+              border: 1px solid #d1d5db;
+            "
+          />
+        </div>
+        <div style="flex: 1">
+          <label style="font-weight: 600; color: #374151; font-size: 0.95rem"
+            >Subject Code</label
+          >
+          <input
+            name="code"
+            type="text"
+            placeholder="e.g. AGR101"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 6px;
+              border: 1px solid #d1d5db;
+            "
+          />
+        </div>
+      </div>
+      <div>
+        <label style="font-weight: 600; color: #374151; font-size: 0.95rem"
+          >Description</label
+        >
+        <textarea
+          name="description"
+          rows="4"
+          placeholder="Brief description of the subject and its learning objectives"
+          style="
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            font-family: inherit;
+          "
+        ></textarea>
+      </div>
+      <div style="display: flex; gap: 12px">
+        <div style="flex: 1">
+          <label style="font-weight: 600; color: #374151; font-size: 0.95rem"
+            >Category</label
+          >
+          <select
+            name="category"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 6px;
+              border: 1px solid #d1d5db;
+            "
+          >
+            <option value="">Select category</option>
+            <option>Agronomy</option>
+            <option>Horticulture</option>
+            <option>Entomology</option>
+          </select>
+        </div>
+        <div style="flex: 1">
+          <label style="font-weight: 600; color: #374151; font-size: 0.95rem"
+            >Grade Level</label
+          >
+          <select
+            name="grade_level"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 6px;
+              border: 1px solid #d1d5db;
+            "
+          >
+            <option value="">Select grade level</option>
+            <option>Grade 7</option>
+            <option>Grade 8</option>
+            <option>Grade 9</option>
+          </select>
+        </div>
+      </div>
+      <div
+        style="
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+          margin-top: 6px;
+        "
+      >
+        <button
+          type="button"
+          id="modal-cancel"
+          class="btn"
+          style="
+            background: #e5e7eb;
+            color: #111827;
+            padding: 8px 12px;
+            border-radius: 6px;
+          "
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn green"
+          style="padding: 8px 12px; border-radius: 6px"
+        >
+          Create Subject
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const btn = document.getElementById("add-subject-btn");
+    const modal = document.getElementById("subject-modal");
+    const closeBtn = document.getElementById("modal-close");
+    const cancelBtn = document.getElementById("modal-cancel");
+
+    function openModal(e) {
+      e && e.preventDefault();
+      modal.style.display = "flex";
+      modal.setAttribute("aria-hidden", "false");
+    }
+    function closeModal(e) {
+      e && e.preventDefault();
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    if (btn) btn.addEventListener("click", openModal);
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+    if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+
+    // close when clicking outside modal content
+    if (modal)
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal) closeModal();
+      });
+
+    // simple submit handler (prevent navigation) - adapt to backend form action as needed
+    const form = document.getElementById("subject-form");
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        // collect values (you can send via fetch to your create-subject endpoint)
+        const data = new FormData(form);
+        // TODO: replace with actual POST to server
+        console.log("Submit subject", Object.fromEntries(data.entries()));
+        closeModal();
+      });
+    }
+  })();
+</script>
