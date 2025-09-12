@@ -13,6 +13,7 @@
 
     </div>
     <div class="right">
+      {% include 'partials/alert_modal.html' %}
       <div class="header">
         <div class="header-title">
           <span style="font-size: 1.5rem; font-weight: 700; color: #2d3a2d"
@@ -367,9 +368,7 @@
               statusEl.style.display = 'none';
               const payload = collectQuizPayload();
               if(!payload.title){
-                statusEl.style.display = 'block';
-                statusEl.style.color = 'red';
-                statusEl.textContent = 'Please enter a quiz title.';
+                showAlertModal('Please enter a quiz title.', 'error');
                 return;
               }
 
@@ -380,20 +379,14 @@
               }).then(r => r.json().then(b => ({ status: r.status, body: b })))
                 .then(({ status, body }) => {
                   if(status >= 200 && status < 300){
-                    statusEl.style.display = 'block';
-                    statusEl.style.color = 'green';
-                    statusEl.textContent = 'Quiz saved successfully (ID: ' + body.quiz_id + ')';
+                    showAlertModal('Quiz saved successfully (ID: ' + body.quiz_id + ')', 'success');
                     // optionally redirect to quizzes list after a short delay
                     setTimeout(()=>{ window.location.href = '/teacher/quizzes'; }, 900);
                   } else {
-                    statusEl.style.display = 'block';
-                    statusEl.style.color = 'red';
-                    statusEl.textContent = (body && body.error) ? body.error : 'Failed to save quiz';
+                    showAlertModal((body && body.error) ? body.error : 'Failed to save quiz', 'error');
                   }
                 }).catch(err => {
-                  statusEl.style.display = 'block';
-                  statusEl.style.color = 'red';
-                  statusEl.textContent = 'Network or server error';
+                  showAlertModal('Network or server error', 'error');
                 });
             });
           })();
