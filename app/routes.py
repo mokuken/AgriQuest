@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, flash
 
-from .models import db, Subject, Quiz, Question, Option
+from .models import db, Subject, Quiz, Question, Option, Teacher
 
 main = Blueprint("main", __name__)
 
@@ -140,6 +140,98 @@ def teacher_create_quiz():
 @main.route("/teacher/students")
 def teacher_students():
     return render_template("teacher/students.html")
+
+@main.route("/teacher/settings")
+def teacher_settings():
+    teacher_id = session.get('teacher_id')
+    teacher = None
+    if teacher_id:
+        teacher = Teacher.query.filter_by(id=teacher_id).first()
+    return render_template("teacher/settings.html", teacher=teacher)
+
+
+@main.route('/teacher/settings/update_info', methods=['POST'])
+def teacher_update_info():
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        flash('Authentication required.', 'error')
+        return redirect(url_for('auth.login_teacher'))
+    teacher = Teacher.query.filter_by(id=teacher_id).first()
+    if not teacher:
+        flash('Teacher not found.', 'error')
+        return redirect(url_for('auth.login_teacher'))
+
+    name = request.form.get('name')
+    email = request.form.get('email')
+    if not name or not email:
+        flash('Name and email are required.', 'error')
+        return redirect(url_for('main.teacher_settings'))
+
+    # check for email collision
+    existing = Teacher.query.filter(Teacher.email == email, Teacher.id != teacher.id).first()
+    if existing:
+        flash('Email already in use by another account.', 'error')
+        return redirect(url_for('main.teacher_settings'))
+
+    teacher.name = name
+    teacher.email = email
+    db.session.commit()
+    flash('Profile updated successfully.', 'success')
+    return redirect(url_for('main.teacher_settings'))
+
+
+@main.route('/teacher/settings/update_password', methods=['POST'])
+def teacher_update_password():
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        flash('Authentication required.', 'error')
+        return redirect(url_for('auth.login_teacher'))
+    teacher = Teacher.query.filter_by(id=teacher_id).first()
+    if not teacher:
+        flash('Teacher not found.', 'error')
+        return redirect(url_for('auth.login_teacher'))
+
+    current = request.form.get('current_password')
+    new = request.form.get('new_password')
+    confirm = request.form.get('confirm_password')
+    if not current or not new or not confirm:
+        flash('Please fill out all password fields.', 'error')
+        return redirect(url_for('main.teacher_settings'))
+    if not teacher.check_password(current):
+        flash('Current password is incorrect.', 'error')
+        return redirect(url_for('main.teacher_settings'))
+    if new != confirm:
+        flash('New passwords do not match.', 'error')
+        return redirect(url_for('main.teacher_settings'))
+    teacher.set_password(new)
+    db.session.commit()
+    flash('Password updated successfully.', 'success')
+    return redirect(url_for('main.teacher_settings'))
+
+
+@main.route('/teacher/settings/delete_account', methods=['POST'])
+def teacher_delete_account():
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        flash('Authentication required.', 'error')
+        return redirect(url_for('auth.login_teacher'))
+    teacher = Teacher.query.filter_by(id=teacher_id).first()
+    if not teacher:
+        flash('Teacher not found.', 'error')
+        return redirect(url_for('auth.login_teacher'))
+
+    # Optional: confirm via password
+    password = request.form.get('confirm_password')
+    if password and not teacher.check_password(password):
+        flash('Password confirmation incorrect.', 'error')
+        return redirect(url_for('main.teacher_settings'))
+
+    # delete teacher and logout
+    db.session.delete(teacher)
+    db.session.commit()
+    session.clear()
+    flash('Your account has been deleted.', 'success')
+    return redirect(url_for('auth.login_teacher'))
 
 
 # Edit quiz route
