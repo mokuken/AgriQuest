@@ -26,15 +26,110 @@ def student_quizzes():
     quizzes = Quiz.query.order_by(Quiz.created_at.desc()).all()
     return render_template("student/quizzes.html", quizzes=quizzes)
 
-
-@main.route('/student/quiz/<int:quiz_id>')
+@main.route('/student/quizzes/take/<int:quiz_id>', methods=["GET", "POST"])
 def student_take_quiz(quiz_id):
-    # minimal view to start/take a quiz (detailed flow can be implemented later)
+    # GET: render quiz for student to take
+    if request.method == 'GET':
+        quiz = Quiz.query.filter_by(id=quiz_id).first()
+        if not quiz:
+            flash('Quiz not found.', 'error')
+            return redirect(url_for('main.student_quizzes'))
+        # Render template with quiz and questions/options
+        return render_template('student/take_quiz.html', quiz=quiz)
+
+    # POST: grade submission (expect JSON payload with answers)
+    # Payload format: { "answers": { "<question_id>": "<answer>", ... } }
+    data = request.get_json() or {}
+    answers = data.get('answers', {})
+    # optional elapsed time (seconds) from client
+    time_taken_seconds = data.get('time_taken_seconds')
     quiz = Quiz.query.filter_by(id=quiz_id).first()
     if not quiz:
-        flash('Quiz not found.', 'error')
-        return redirect(url_for('main.student_quizzes'))
-    return render_template('student/quiz.html', quiz=quiz)
+        return jsonify({"error": "Quiz not found"}), 404
+
+    total = len(quiz.questions)
+    correct_count = 0
+    details = []
+    for q in quiz.questions:
+        qid = str(q.id)
+        given = answers.get(qid)
+        is_correct = False
+        # normalize True/False
+        if q.type == 'tf':
+            # Accept boolean or string
+            if isinstance(given, bool):
+                given_norm = 'True' if given else 'False'
+            else:
+                given_norm = str(given)
+            is_correct = given_norm == q.correct_answer
+        else:
+            # mc: compare string keys (A/B/C...)
+            if given is not None:
+                is_correct = str(given).strip() == str(q.correct_answer).strip()
+
+        if is_correct:
+            correct_count += 1
+
+        details.append({
+            "question_id": q.id,
+            "given": given,
+            "correct_answer": q.correct_answer,
+            "is_correct": is_correct,
+        })
+
+    score = correct_count
+    percent = (score / total * 100) if total > 0 else 0
+    result = {
+        "quiz_id": quiz.id,
+        "total_questions": total,
+        "correct": score,
+        "percent": percent,
+        "details": details,
+    }
+    # attach human-friendly time if provided
+    if isinstance(time_taken_seconds, int) or (isinstance(time_taken_seconds, float)):
+        secs = int(time_taken_seconds)
+        mm = secs // 60
+        ss = secs % 60
+        result['time_taken_seconds'] = secs
+        result['time_taken'] = f"{mm:02d}:{ss:02d}"
+    # store last result in session for display on results page
+    try:
+        session['last_quiz_result'] = result
+    except Exception:
+        # if session can't store (very large), just return result JSON
+        return jsonify(result), 200
+
+    return jsonify({"redirect": url_for('main.student_quiz_results')}), 200
+
+@main.route("/student/quizzes/results")
+def student_quiz_results():
+    # display the most recent quiz result stored in session (one-off)
+    result = session.pop('last_quiz_result', None)
+    quiz = None
+    counts = {
+        'correct': 0,
+        'incorrect': 0,
+        'unanswered': 0,
+    }
+    if result:
+        quiz_id = result.get('quiz_id')
+        if quiz_id:
+            quiz = Quiz.query.filter_by(id=quiz_id).first()
+        details = result.get('details', []) or []
+        total = result.get('total_questions', 0)
+        correct = result.get('correct', 0)
+        unanswered = 0
+        for d in details:
+            given = d.get('given')
+            if given is None or (isinstance(given, str) and given.strip() == ''):
+                unanswered += 1
+        incorrect = max(0, total - correct - unanswered)
+        counts['correct'] = correct
+        counts['incorrect'] = incorrect
+        counts['unanswered'] = unanswered
+
+    return render_template("student/quiz_results.html", quiz=quiz, result=result, counts=counts)
 
 @main.route("/teacher/dashboard")
 def teacher_dashboard():

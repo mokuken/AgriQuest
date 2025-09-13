@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+  </head>
+  <style>
+    /* Minimal styles used by this template and included sidebar partial */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9e9;
+      min-height: 100vh;
+      display: flex;
+    }
+    .left {
+      width: 20%;
+      background: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      border-right: 1px solid #e0e0e0;
+    }
+    .right {
+      height: 100vh;
+      width: 80%;
+      overflow-y: auto;
+      padding-bottom: 20px;
+    }
+    .header {
+      width: 100%;
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .section {
+      display: flex;
+      gap: 20px;
+      padding: 0 20px;
+      margin-top: 20px;
+    }
+    /* Results UI styles */
+    .results-container {
+      background: transparent;
+      width: 100%;
+      padding: 24px;
+    }
+    .results-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 6px 18px rgba(20,25,20,0.06);
+      margin-bottom: 18px;
+    }
+    .results-header {
+      text-align: center;
+      padding: 18px 12px 6px;
+    }
+    .results-header .trophy {
+      background: #eafaf0;
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0b7a3a;
+      font-weight: 700;
+      font-size: 28px;
+    }
+    .results-title { font-size: 1.45rem; font-weight: 700; color: #213722; }
+    .results-subtitle { color: #6b6f6b; font-size: 0.95rem; margin-top:6px }
+
+    .stats-grid { display:flex; gap:14px; margin-top:18px; }
+    .stat { flex:1; background:#fbfdfe; border-radius:10px; padding:16px; text-align:center; }
+    .stat .big { font-size:1.4rem; font-weight:800; color:#237a3a; }
+    .stat .small { font-size:0.85rem; color:#7a7f7a; margin-top:6px }
+
+    .columns { display:flex; gap:18px; margin-top:18px; }
+    .col { flex:1; }
+
+    .performance-list { list-style:none; padding:0; margin:0; }
+    .performance-item { display:flex; justify-content:space-between; padding:10px 12px; border-radius:8px; margin-bottom:10px; align-items:center }
+    .perf-correct { background:#eef9f1; }
+    .perf-incorrect { background:#fff1f1; }
+    .perf-unanswered { background:#f4f6f8; }
+
+    .progress-bar { height:10px; background:#eef3ef; border-radius:6px; overflow:hidden; margin-top:8px }
+    .progress-fill { height:100%; border-radius:6px }
+    .fill-green { background:#16a34a }
+    .fill-orange { background:#f97316 }
+    .fill-red { background:#dc2626 }
+
+    .topic-item { background:#fff; padding:12px; border-radius:8px; margin-bottom:10px }
+    .topic-title { font-weight:700; color:#243426 }
+    .topic-sub { color:#6f746f; font-size:0.85rem }
+
+    .recommendations { display:flex; gap:18px; margin-top:18px }
+    .rec-list { list-style: none; padding-left: 0 }
+
+    .actions { display:flex; gap:12px; margin-top:14px }
+    .btn { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:700 }
+    .btn-primary { background:#0b7a3a; color:#fff }
+    .btn-secondary { background:#eef2ff; color:#4338ca }
+    .btn-outline { background:#fff; border:1px solid #d1d5db; color:#374151 }
+  </style>
+  <body>
+  <div class="left">{% include 'partials/student_sidebar.html' %}</div>
+    <div class="right">
+      <div class="header">
+        <div class="header-title">
+          <span style="font-size: 1.5rem; font-weight: 700; color: #2d3a2d"
+            >Taking Quiz</span
+          >
+          <span style="font-size: 1rem; color: grey"
+            >Your progress and results will be displayed here.</span
+          >
+        </div>
+      </div>
+      <div class="section" style="width: 100%">
+        <div class="results-container">
+          <div class="results-card results-header">
+            <div class="trophy">🏆</div>
+            <div class="results-title">Quiz Completed!</div>
+            <div class="results-subtitle">{% if quiz %}{{ quiz.title }}{% else %}Quiz Results{% endif %}</div>
+            <div class="stats-grid">
+              <div class="stat">
+                <div class="big">{% if result %}{{ (result.percent|round(2)) }}%{% else %}-{% endif %}</div>
+                <div class="small">Overall Score</div>
+              </div>
+              <div class="stat">
+                <div class="big">{% if result and result.time_taken %}{{ result.time_taken }}{% else %}-{% endif %}</div>
+                <div class="small">Time Taken</div>
+              </div>
+              <div class="stat">
+                <div class="big">{% if result %}{{ result.correct }} / {{ result.total_questions }}{% else %}-{% endif %}</div>
+                <div class="small">Correct Answers</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="columns">
+            <div class="col results-card" style="flex:1">
+              <h3 style="margin-bottom:12px">Performance Breakdown</h3>
+              <ul class="performance-list">
+                <li class="performance-item perf-correct">
+                  <div>Correct Answers</div>
+                  <div><strong>{{ counts.correct if counts else 0 }}</strong></div>
+                </li>
+                <li class="performance-item perf-incorrect">
+                  <div>Incorrect Answers</div>
+                  <div><strong>{{ counts.incorrect if counts else 0 }}</strong></div>
+                </li>
+                <li class="performance-item perf-unanswered">
+                  <div>Unanswered</div>
+                  <div><strong>{{ counts.unanswered if counts else 0 }}</strong></div>
+                </li>
+              </ul>
+
+              <div style="margin-top:14px">
+                <div style="font-weight:700; color:#2d6b2d; margin-bottom:6px">Grade: B+</div>
+                <div class="progress-bar"><div class="progress-fill fill-green" style="width:78%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:18px; flex-wrap:wrap;width: 100%;">
+              <div>
+                <div class="actions">
+                  <a href="{{ url_for('main.student_dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
+                  <a href="#review" class="btn btn-secondary">Review Answers</a>
+                  {% if quiz %}
+                    <a href="{{ url_for('main.student_take_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">Retake Quiz</a>
+                  {% else %}
+                    <button class="btn btn-primary" disabled>Retake Quiz</button>
+                  {% endif %}
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
