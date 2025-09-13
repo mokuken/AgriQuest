@@ -182,6 +182,12 @@
       background: linear-gradient(90deg, #ecf9ee, #f6fdf8);
       border: 1px solid #dff3e6;
     }
+    /* colored variants for clearer separators (cycle through these) */
+    .quiz-color-1 { background: linear-gradient(90deg, #fff7ed, #fff3e0); border: 1px solid #ffe7ce; }
+    .quiz-color-2 { background: linear-gradient(90deg, #f3e9ff, #f0e7ff); border: 1px solid #eadcff; }
+    .quiz-color-3 { background: linear-gradient(90deg, #e9f9f0, #e6f6ec); border: 1px solid #dff3e6; }
+    .quiz-color-4 { background: linear-gradient(90deg, #f6fefc, #f3fcfa); border: 1px solid #e9f9f0; }
+    .quiz-color-5 { background: linear-gradient(90deg, #f6f8ff, #f3f6ff); border: 1px solid #e6f0ff; }
     .quiz-icon {
       width: 44px;
       height: 44px;
@@ -217,6 +223,7 @@
       border-radius: 8px;
       border: none;
       font-weight: 700;
+      text-decoration: none;
       cursor: pointer;
     }
     .btn.green {
@@ -327,173 +334,62 @@
       <div class="header">
         <div class="header-title">
           <span style="font-size: 1.5rem; font-weight: 700; color: #2d3a2d"
-            >Dashboard</span
+            >Quizzes</span
           >
           <span style="font-size: 1rem; color: grey"
             >Welcome back! Here's what's happening with your quizzes
             today.</span
           >
         </div>
-        <div class="header-actions">
-          <button
-            style="
-              padding: 10px 15px;
-              border: none;
-              border-radius: 6px;
-              background-color: #4e4e4e;
-              color: white;
-              font-weight: 600;
-            "
-          >
-            Dark
-          </button>
-          <button
-            style="
-              padding: 10px 15px;
-              border: none;
-              border-radius: 6px;
-              background-color: #4caf50;
-              color: white;
-              font-weight: 600;
-            "
-          >
-            Start Quiz
-          </button>
-        </div>
       </div>
-      <div class="stats">
-        <div class="total-quizzes">
-          <div class="stat-left">
-            <div class="stat-title">Quizzes Taken</div>
-            <div class="stat-value">47</div>
-            <div class="stat-delta">
-              +12%
-              <span style="color: #6b7280; font-weight: 500"
-                >from last month</span
-              >
-            </div>
+      <div class="section" style="width: 100%;">
+        <div class="available-quizzes" style="width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <input id="quiz-search" type="text" placeholder="Search quizzes..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 1rem; width: 220px;" />
+            <a style="color: #10b981; text-decoration: none; font-weight: 700">View All</a>
           </div>
-          <div class="stat-right">
-            <div class="stat-icon blue">📘</div>
-          </div>
-        </div>
-        <div class="active-subjects">
-          <div class="stat-left">
-            <div class="stat-title">Average Score</div>
-            <div class="stat-value">85%</div>
-            <div class="stat-delta" style="color: #10b981">
-              +7
-              <span style="color: #6b7280; font-weight: 500">improvement</span>
-            </div>
-          </div>
-          <div class="stat-right">
-            <div class="stat-icon green">📈</div>
-          </div>
-        </div>
-        <div class="total-students">
-          <div class="stat-left">
-            <div class="stat-title">Days Streak</div>
-            <div class="stat-value">12</div>
-            <div class="stat-delta" style="color: #10b981">
-              Days
-              <span style="color: #6b7280; font-weight: 500">Keep it up!</span>
-            </div>
-          </div>
-          <div class="stat-right">
-            <div class="stat-icon orange">🔥</div>
-          </div>
-        </div>
-        <div class="avg-score">
-          <div class="stat-left">
-            <div class="stat-title">Rank</div>
-            <div class="stat-value">#3</div>
-            <div class="stat-delta" style="color: #10b981">
-              Top 5%
-              <span style="color: #6b7280; font-weight: 500">in class</span>
-            </div>
-          </div>
-          <div class="stat-right">
-            <div class="stat-icon purple">🏅</div>
-          </div>
-        </div>
-      </div>
-      <div class="section">
-        <div class="section-left">
-          <div class="available-quizzes">
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-              "
-            >
-              <div style="font-weight: 700; color: #111827">
-                Available Quizzes
-              </div>
-              <a style="color: #10b981; text-decoration: none; font-weight: 700"
-                >View All</a
-              >
-            </div>
-            {% if quizzes %}
-              {% for quiz in quizzes %}
-                <div class="quiz-item {% if loop.first %}featured{% endif %}" style="border: 1px solid transparent">
-                  <div class="quiz-icon" style="background: #f3f4f6; color: #111827;">
-                    📚
-                  </div>
-                  <div class="quiz-meta">
-                    <div class="quiz-title">{{ quiz.title }}</div>
-                    <div class="quiz-desc">
-                      {% if quiz.subject %}{{ quiz.subject.name }} • {% endif %}
-                      {{ quiz.questions|length }} questions • {{ quiz.time_limit }} min
-                    </div>
-                    <div style="color: #6b7280; font-size: 0.9rem; margin-top: 6px">
-                      {% if quiz.teacher_id and quiz.teacher %}By {{ quiz.teacher.name }}{% else %}By Unknown{% endif %}
-                    </div>
-                  </div>
-                  <div>
-                    <button class="btn green">Start Quiz</button>
-                  </div>
+          {% if quizzes and quizzes|length > 0 %}
+            {% for quiz in quizzes %}
+              {% set color_idx = (loop.index0 % 5) + 1 %}
+              <div class="quiz-item quiz-color-{{ color_idx }}" data-title="{{ quiz.title|e }}" data-subject="{{ (quiz.subject.name if quiz.subject else '')|e }}" style="border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #e6f0ff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #2563eb;">
+                  Q
                 </div>
-              {% endfor %}
-            {% else %}
-              <div style="color: #6b7280;">No available quizzes at the moment.</div>
-            {% endif %}
-          </div>
-        </div>
-        <div class="section-right">
-          <div class="todays-goal">
-            <div class="goal-header">
-              <div class="goal-title">Today's Goal</div>
-              <div style="opacity: 0.9">?</div>
-            </div>
-            <div class="goal-progress-row">
-              <div style="font-size: 0.95rem">Quizzes Completed</div>
-              <div style="font-weight: 700">2/3</div>
-            </div>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <div class="goal-note">1 more quiz to reach your daily goal!</div>
-          </div>
-          <div class="recent-achievements">
-            <div style="font-weight: 700; margin-bottom: 6px; color: #111827">
-              Recent Achievements
-            </div>
-            <div class="achievement-item">
-              <div class="ach-icon gold">🥇</div>
-              <div class="ach-text">
-                <div class="title">Perfect Score</div>
-                <div class="subtitle">Plant Biology Quiz</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 700; color: #111827;">{{ quiz.title }}</div>
+                  <div style="color: #6b7280; font-size: 0.95rem;">{{ quiz.subject.name if quiz.subject else 'Unspecified' }} • {{ quiz.questions|length }} questions • {{ quiz.time_limit }} min</div>
+                  <div style="color: #6b7280; font-size: 0.9rem; margin-top: 6px">{% if quiz.teacher_id and quiz.teacher %}By {{ quiz.teacher.name }}{% else %}By Unknown{% endif %}</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <a href="{{ url_for('main.student_take_quiz', quiz_id=quiz.id) }}" class="btn green">Take Quiz</a>
+                </div>
               </div>
-            </div>
-            <div class="achievement-item">
-              <div class="ach-icon green">🔥</div>
-              <div class="ach-text">
-                <div class="title">10 Day Streak</div>
-                <div class="subtitle">Daily practice</div>
-              </div>
-            </div>
-          </div>
+            {% endfor %}
+          {% else %}
+            <div style="padding:20px; color:#6b7280;">No quizzes available yet. Please check back later.</div>
+          {% endif %}
         </div>
       </div>
     </div>
   </body>
+  <script>
+    (function(){
+      const input = document.getElementById('quiz-search');
+      if(!input) return;
+      const container = document.querySelector('.available-quizzes');
+      input.addEventListener('input', function(e){
+        const q = (e.target.value || '').trim().toLowerCase();
+        const items = container.querySelectorAll('.quiz-item');
+        items.forEach(it => {
+          const title = (it.dataset.title || '').toLowerCase();
+          const subject = (it.dataset.subject || '').toLowerCase();
+          if(!q || title.indexOf(q) !== -1 || subject.indexOf(q) !== -1){
+            it.style.display = '';
+          } else {
+            it.style.display = 'none';
+          }
+        });
+      });
+    })();
+  </script>
 </html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+  </head>
+  <style>
+    /* Minimal styles used by this template and included sidebar partial */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9e9;
+      min-height: 100vh;
+      display: flex;
+    }
+    .left {
+      width: 20%;
+      background: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      border-right: 1px solid #e0e0e0;
+    }
+    .right {
+      height: 100vh;
+      width: 80%;
+      overflow-y: auto;
+      padding-bottom: 20px;
+    }
+    .header {
+      width: 100%;
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .section {
+      display: flex;
+      gap: 20px;
+      padding: 0 20px;
+      margin-top: 20px;
+    }
+    /* Settings page styles */
+    .settings-container { max-width: 1000px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+    .card { background: #fff; border: 1px solid #e9ecef; border-radius: 8px; padding: 18px; }
+    .card h3 { margin-bottom: 8px; color:#2d3a2d }
+    .card-row { display:flex; gap:20px; }
+    .profile-left { width: 160px; display:flex; align-items:flex-start }
+    .avatar img { width: 96px; height: 96px; border-radius: 50%; object-fit:cover; border:4px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+    .change-photo { display:block; margin-top:8px; color:#17a673; font-size:0.9rem; text-decoration:none }
+    .profile-right { flex:1 }
+    .form-row { margin-top:10px; display:flex; flex-direction:column }
+    .form-row.two-cols { grid-template-columns: 1fr 1fr }
+    label { font-size:0.9rem; color:#556b56; margin-bottom:6px }
+    input[type="text"], input[type="email"], input[type="password"], select { padding:10px 12px; border:1px solid #e6e6e6; border-radius:6px; width:100%; }
+    .muted { color:#7a857a; font-size:0.9rem }
+    .theme-options { display:flex; gap:12px; margin:8px 0 16px }
+
+    .pref-list { display:flex; flex-direction:column; gap:12px }
+    .pref-item { display:flex; justify-content:space-between; align-items:center; padding:10px; border-radius:6px; background:#fbfdfb }
+
+    /* Toggle switch */
+    .toggle { position:relative; width:48px; height:26px; display:inline-block }
+    .toggle input { display:none }
+    .toggle .slider { position:absolute; inset:0; background:#e6e6e6; border-radius:20px; transition:all .2s }
+    .toggle .slider:before { content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; box-shadow:0 1px 3px rgba(0,0,0,0.2); transition:all .2s }
+    .toggle input:checked + .slider { background:#17a673 }
+    .toggle input:checked + .slider:before { transform: translateX(22px) }
+
+    .two-col-cta { display:flex; justify-content:space-between; align-items:center; margin-top:12px }
+    .two-col-cta .muted { margin-top:4px }
+
+    .danger { border-color:#f5c6cb; background: #fff5f6 }
+    .danger-row { display:flex; justify-content:space-between; align-items:center; padding:12px; background:#fff1f2; border-radius:6px }
+
+    .actions { display:flex; justify-content:flex-end; gap:10px; margin-top:18px }
+    .btn { padding:8px 14px; border-radius:6px; border:1px solid transparent; background: #f1f1f1; cursor:pointer }
+    .btn.primary { background:#17a673; color:white }
+    .btn.danger { background:#d9534f; color:white }
+    .btn.outline { background:transparent; border:1px solid #e6e6e6 }
+
+    @media(min-width:900px){
+      .grid { grid-template-columns: 1fr 1fr; }
+      .card.profile { grid-column: 1 / 3 }
+      .profile-right .two-cols { display:grid; grid-template-columns: 1fr 1fr; gap:12px }
+    }
+  </style>
+  <body>
+  <div class="left">{% include 'partials/student_sidebar.html' %}</div>
+    <div class="right">
+      <div class="header">
+        <div class="header-title">
+          <span style="font-size: 1.5rem; font-weight: 700; color: #2d3a2d"
+            >Settings</span
+          >
+          <span style="font-size: 1rem; color: grey"
+            >Manage your account settings and preferences here.</span
+          >
+        </div>
+      </div>
+      <div class="section" style="width: 100%">
+        <div class="settings-container" style="width:100%; padding: 20px">
+          <!-- Profile Information + Preferences + Security + Danger Zone -->
+          <div class="grid">
+            <section class="card">
+              <h3>Personal Information</h3>
+        <form method="post" action="{{ url_for('main.student_update_info') }}">
+                <div class="form-row two-cols">
+                  <label for="name">Full Name</label>
+          <input id="name" name="name" type="text" value="{{ student.name if student else '' }}" />
+                </div>
+                <div class="form-row two-cols">
+                  <label for="email">Email</label>
+          <input id="email" name="email" type="email" value="{{ student.email if student else '' }}" />
+                </div>
+                <div style="margin-top:10px">
+                  <button type="submit" class="btn primary">Update Info</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="card security">
+              <h3>Security</h3>
+              <form method="post" action="{{ url_for('main.student_update_password') }}">
+                <div class="form-row two-cols">
+                  <label for="current_password">Current Password</label>
+                  <input id="current_password" name="current_password" type="password" placeholder="" />
+                </div>
+                <div class="form-row two-cols">
+                  <label for="new_password">New Password</label>
+                  <input id="new_password" name="new_password" type="password" placeholder="" />
+                </div>
+                <div class="form-row two-cols" style="margin-top:10px">
+                  <label for="confirm_password">Confirm New Password</label>
+                  <input id="confirm_password" name="confirm_password" type="password" placeholder="" />
+                </div>
+                <div style="margin-top:10px">
+                  <button type="submit" class="btn primary">Update Password</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="card preferences">
+              <h3>Preferences</h3>
+
+              <div class="pref-list">
+                <div class="pref-item">
+                  <div>
+                    <strong>Dark Mode</strong>
+                    <div class="muted">Enable dark mode for the interface</div>
+                  </div>
+                  <label class="toggle">
+                    <input type="checkbox" checked />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+            </section>
+
+            <section class="card danger">
+              <h3>Danger Zone</h3>
+              <div class="danger-row" style="margin-top:12px">
+                <div>
+                  <strong>Permanently delete</strong>
+                  <div class="muted">your account and all data</div>
+                </div>
+                <div>
+                  <button id="open-delete-modal" class="btn danger">Delete Account</button>
+                </div>
+              </div>
+
+              <!-- Delete confirmation modal -->
+              <div id="delete-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:9999;">
+                <div style="background:white; width:420px; padding:20px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.2);">
+                  <h3 style="margin-bottom:8px">Confirm account deletion</h3>
+                  <p class="muted">This action is permanent. Enter your password to confirm deleting your account.</p>
+                  <form id="delete-form" method="post" action="{{ url_for('main.student_delete_account') }}">
+                    <div style="margin-top:12px">
+                      <label for="modal_confirm_password">Password</label>
+                      <input id="modal_confirm_password" name="confirm_password" type="password" style="width:100%; padding:8px; margin-top:6px;" />
+                    </div>
+                    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px">
+                      <button type="button" id="cancel-delete" class="btn outline">Cancel</button>
+                      <button type="submit" id="confirm-delete" class="btn danger">Confirm Delete</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    // Modal handling for delete account
+    (function(){
+      var openBtn = document.getElementById('open-delete-modal');
+      var modal = document.getElementById('delete-modal');
+      var cancelBtn = document.getElementById('cancel-delete');
+      var pwd = document.getElementById('modal_confirm_password');
+
+      function showModal(){
+        modal.style.display = 'flex';
+        setTimeout(function(){ if(pwd) pwd.focus(); }, 50);
+      }
+      function hideModal(){
+        modal.style.display = 'none';
+      }
+      if(openBtn) openBtn.addEventListener('click', showModal);
+      if(cancelBtn) cancelBtn.addEventListener('click', hideModal);
+      // close on background click
+      if(modal) modal.addEventListener('click', function(e){ if(e.target === modal) hideModal(); });
+      // close on Esc
+      document.addEventListener('keydown', function(e){ if(e.key === 'Escape') hideModal(); });
+    })();
+  </script>
+</html>

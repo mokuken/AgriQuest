@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ quiz.title if quiz else 'Quiz' }}</title>
+  </head>
+  <body style="font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif; padding:20px;">
+    <h1>{{ quiz.title }}</h1>
+    <p style="color: #555">{% if quiz.subject %}Subject: {{ quiz.subject.name }} • {% endif %} {{ quiz.questions|length }} questions • {{ quiz.time_limit }} min</p>
+
+    {% if quiz.questions and quiz.questions|length > 0 %}
+      <ol>
+        {% for q in quiz.questions %}
+          <li style="margin-bottom:12px">
+            <div><strong>{{ q.text }}</strong></div>
+            {% if q.type == 'mc' and q.options %}
+              <ul>
+                {% for opt in q.options %}
+                  <li>{{ opt.key }}. {{ opt.text }}</li>
+                {% endfor %}
+              </ul>
+            {% elif q.type == 'tf' %}
+              <div>True / False</div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+      <a href="{{ url_for('main.student_quizzes') }}" style="display:inline-block; padding:8px 12px; background:#10b981; color:#fff; border-radius:6px; text-decoration:none;">Back to Quizzes</a>
+    {% else %}
+      <p>No questions available for this quiz.</p>
+      <a href="{{ url_for('main.student_quizzes') }}">Back</a>
+    {% endif %}
+  </body>
+</html>

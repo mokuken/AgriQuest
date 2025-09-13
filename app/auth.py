@@ -11,7 +11,7 @@ def login_student():
         student = Student.query.filter_by(email=email).first()
         if student and student.check_password(password):
             session["student_id"] = student.id
-            return redirect(url_for("main.select_role"))  # Change to student dashboard route
+            return redirect(url_for("main.student_dashboard"))  # Change to student dashboard route
         else:
             flash("Invalid email or password.")
     return render_template("student/login_student.html")

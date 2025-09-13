@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, flash
 
 from .models import db, Subject, Quiz, Question, Option, Teacher
+from .models import Student
 
 main = Blueprint("main", __name__)
 
@@ -9,6 +10,31 @@ main = Blueprint("main", __name__)
 def select_role():
     return render_template("select_role.html")
 
+@main.route("/student/dashboard")
+def student_dashboard():
+    # show available quizzes from all teachers (most recent first)
+    from .models import Quiz, Teacher
+    quizzes = Quiz.query.order_by(Quiz.created_at.desc()).limit(10).all()
+    # eager load teacher info if available
+    # template will handle missing teacher gracefully
+    return render_template("student/dashboard.html", quizzes=quizzes)
+
+
+@main.route("/student/quizzes")
+def student_quizzes():
+    # show all available quizzes for students (most recent first)
+    quizzes = Quiz.query.order_by(Quiz.created_at.desc()).all()
+    return render_template("student/quizzes.html", quizzes=quizzes)
+
+
+@main.route('/student/quiz/<int:quiz_id>')
+def student_take_quiz(quiz_id):
+    # minimal view to start/take a quiz (detailed flow can be implemented later)
+    quiz = Quiz.query.filter_by(id=quiz_id).first()
+    if not quiz:
+        flash('Quiz not found.', 'error')
+        return redirect(url_for('main.student_quizzes'))
+    return render_template('student/quiz.html', quiz=quiz)
 
 @main.route("/teacher/dashboard")
 def teacher_dashboard():
@@ -293,3 +319,97 @@ def teacher_edit_quiz(quiz_id):
     else:
         flash("Quiz updated successfully!", "success")
         return redirect(url_for('main.teacher_quizzes'))
+
+
+# Student settings (mirror teacher settings)
+@main.route("/student/settings")
+def student_settings():
+    student_id = session.get('student_id')
+    student = None
+    if student_id:
+        student = Student.query.filter_by(id=student_id).first()
+    return render_template("student/settings.html", student=student)
+
+
+@main.route('/student/settings/update_info', methods=['POST'])
+def student_update_info():
+    student_id = session.get('student_id')
+    if not student_id:
+        flash('Authentication required.', 'error')
+        return redirect(url_for('auth.login_student'))
+    student = Student.query.filter_by(id=student_id).first()
+    if not student:
+        flash('Student not found.', 'error')
+        return redirect(url_for('auth.login_student'))
+
+    name = request.form.get('name')
+    email = request.form.get('email')
+    if not name or not email:
+        flash('Name and email are required.', 'error')
+        return redirect(url_for('main.student_settings'))
+
+    # check for email collision
+    existing = Student.query.filter(Student.email == email, Student.id != student.id).first()
+    if existing:
+        flash('Email already in use by another account.', 'error')
+        return redirect(url_for('main.student_settings'))
+
+    student.name = name
+    student.email = email
+    db.session.commit()
+    flash('Profile updated successfully.', 'success')
+    return redirect(url_for('main.student_settings'))
+
+
+@main.route('/student/settings/update_password', methods=['POST'])
+def student_update_password():
+    student_id = session.get('student_id')
+    if not student_id:
+        flash('Authentication required.', 'error')
+        return redirect(url_for('auth.login_student'))
+    student = Student.query.filter_by(id=student_id).first()
+    if not student:
+        flash('Student not found.', 'error')
+        return redirect(url_for('auth.login_student'))
+
+    current = request.form.get('current_password')
+    new = request.form.get('new_password')
+    confirm = request.form.get('confirm_password')
+    if not current or not new or not confirm:
+        flash('Please fill out all password fields.', 'error')
+        return redirect(url_for('main.student_settings'))
+    if not student.check_password(current):
+        flash('Current password is incorrect.', 'error')
+        return redirect(url_for('main.student_settings'))
+    if new != confirm:
+        flash('New passwords do not match.', 'error')
+        return redirect(url_for('main.student_settings'))
+    student.set_password(new)
+    db.session.commit()
+    flash('Password updated successfully.', 'success')
+    return redirect(url_for('main.student_settings'))
+
+
+@main.route('/student/settings/delete_account', methods=['POST'])
+def student_delete_account():
+    student_id = session.get('student_id')
+    if not student_id:
+        flash('Authentication required.', 'error')
+        return redirect(url_for('auth.login_student'))
+    student = Student.query.filter_by(id=student_id).first()
+    if not student:
+        flash('Student not found.', 'error')
+        return redirect(url_for('auth.login_student'))
+
+    # Optional: confirm via password
+    password = request.form.get('confirm_password')
+    if password and not student.check_password(password):
+        flash('Password confirmation incorrect.', 'error')
+        return redirect(url_for('main.student_settings'))
+
+    # delete student and logout
+    db.session.delete(student)
+    db.session.commit()
+    session.clear()
+    flash('Your account has been deleted.', 'success')
+    return redirect(url_for('auth.login_student'))
