@@ -127,7 +127,7 @@
       <div class="header">
         <div class="header-title">
           <span style="font-size: 1.5rem; font-weight: 700; color: #2d3a2d"
-            >Taking Quiz</span
+            >Quiz Result</span
           >
           <span style="font-size: 1rem; color: grey"
             >Your progress and results will be displayed here.</span
@@ -185,10 +185,10 @@
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:18px; flex-wrap:wrap;width: 100%;">
               <div>
                 <div class="actions">
-                  <a href="{{ url_for('main.student_dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
-                  <a href="#review" class="btn btn-secondary">Review Answers</a>
+                  <a href="{{ url_for('main.student_dashboard') }}" class="btn btn-outline" style="text-decoration: none;">Back to Dashboard</a>
+                  <a href="#review" class="btn btn-secondary" style="text-decoration: none;">Review Answers</a>
                   {% if quiz %}
-                    <a href="{{ url_for('main.student_take_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">Retake Quiz</a>
+                    <a href="{{ url_for('main.student_take_quiz', quiz_id=quiz.id) }}" class="btn btn-primary" style="text-decoration: none;">Retake Quiz</a>
                   {% else %}
                     <button class="btn btn-primary" disabled>Retake Quiz</button>
                   {% endif %}
