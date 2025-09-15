@@ -464,16 +464,35 @@
           <div class="todays-goal">
             <div class="goal-header">
               <div class="goal-title">Today's Goal</div>
-              <div style="opacity: 0.9">?</div>
+              <div style="opacity: 0.9">Daily</div>
             </div>
+            {# compute safe values and pct #}
+            {% set dg = daily_goal if daily_goal is not none else 1 %}
+            {% set dc = daily_completed if daily_completed is not none else 0 %}
+            {% set dg_safe = dg if dg > 0 else 0 %}
+            {% if dg_safe and dg_safe > 0 %}
+              {% set pct = (dc * 100 / dg_safe)|round(0) if dg_safe > 0 else 0 %}
+            {% else %}
+              {% set pct = 0 %}
+            {% endif %}
+
             <div class="goal-progress-row">
               <div style="font-size: 0.95rem">Quizzes Completed</div>
-              <div style="font-weight: 700">2/3</div>
+              <div style="font-weight: 700">{{ dc }} / {{ dg }}</div>
             </div>
-            <div class="progress-track">
+            <div class="progress-track" data-pct="{{ pct }}">
               <div class="progress-fill"></div>
             </div>
-            <div class="goal-note">1 more quiz to reach your daily goal!</div>
+            <div class="goal-note">
+              {% if dg_safe == 0 %}
+                No daily goal set. Set one in Settings to track progress.
+              {% elif dc >= dg %}
+                Daily goal reached — great job!
+              {% else %}
+                {% set remaining = (dg - dc) if dg - dc > 0 else 0 %}
+                {{ remaining }} more quiz{{ 'es' if remaining != 1 else '' }} to reach your daily goal!
+              {% endif %}
+            </div>
           </div>
           <div class="recent-achievements">
             <div style="font-weight: 700; margin-bottom: 6px; color: #111827">
@@ -498,4 +517,13 @@
       </div>
     </div>
   </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.progress-track').forEach(function(el) {
+        var pct = el.getAttribute('data-pct') || 0;
+        var fill = el.querySelector('.progress-fill');
+        if (fill) fill.style.width = pct + '%';
+      });
+    });
+  </script>
 </html>
