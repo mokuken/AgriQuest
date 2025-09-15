@@ -336,14 +336,14 @@
         </div>
       </div>
       <div class="stats">
-        <div class="total-quizzes">
+    <div class="total-quizzes">
           <div class="stat-left">
             <div class="stat-title">Total Quizzes</div>
-            <div class="stat-value">24</div>
+      <div class="stat-value">{{ total_quizzes if total_quizzes is not none else 0 }}</div>
             <div class="stat-delta">
-              +12%
+              +{{ new_quizzes if new_quizzes is not none else 0 }}
               <span style="color: #6b7280; font-weight: 500"
-                >from last month</span
+                >new Quizzes</span
               >
             </div>
           </div>
@@ -351,13 +351,13 @@
             <div class="stat-icon blue">📄</div>
           </div>
         </div>
-        <div class="active-subjects">
+    <div class="active-subjects">
           <div class="stat-left">
             <div class="stat-title">Total Subjects</div>
-            <div class="stat-value">85%</div>
+      <div class="stat-value">{{ total_subjects if total_subjects is not none else 0 }}</div>
             <div class="stat-delta" style="color: #10b981">
-              +7
-              <span style="color: #6b7280; font-weight: 500">improvement</span>
+              +{{ new_subjects if new_subjects is not none else 0 }}
+              <span style="color: #6b7280; font-weight: 500">new Subjects</span>
             </div>
           </div>
           <div class="stat-right">
@@ -367,10 +367,10 @@
         <div class="total-students">
           <div class="stat-left">
             <div class="stat-title">Total Students</div>
-            <div class="stat-value">120</div>
+            <div class="stat-value">{{ total_students if total_students is not none else 0 }}</div>
             <div class="stat-delta" style="color: #10b981">
-              Days
-              <span style="color: #6b7280; font-weight: 500">Keep it up!</span>
+              {{ new_students if new_students is not none else '0' }} New
+              <span style="color: #6b7280; font-weight: 500">Students</span>
             </div>
           </div>
           <div class="stat-right">

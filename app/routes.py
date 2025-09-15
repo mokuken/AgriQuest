@@ -1,4 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, flash
+from datetime import datetime, timedelta
+
+from sqlalchemy import func
 
 from .models import db, Subject, Quiz, Question, Option, Teacher
 from .models import Student
@@ -142,7 +145,69 @@ def teacher_dashboard():
             .limit(5)
             .all()
         )
-    return render_template("teacher/dashboard.html", recent_quizzes=recent_quizzes)
+    # compute totals and recent deltas (last 7 days)
+    try:
+        now = datetime.utcnow()
+        cutoff = now - timedelta(days=7)
+
+        if teacher_id:
+            total_quizzes = Quiz.query.filter_by(teacher_id=teacher_id).count()
+            new_quizzes = (
+                Quiz.query.filter(Quiz.teacher_id == teacher_id, Quiz.created_at >= cutoff).count()
+            )
+
+            # total_subjects as distinct subjects used by this teacher's quizzes
+            total_subjects = (
+                db.session.query(func.count(func.distinct(Quiz.subject_id)))
+                .filter(Quiz.teacher_id == teacher_id, Quiz.subject_id != None)
+                .scalar()
+                or 0
+            )
+
+            # new_subjects: distinct subjects which had a quiz created in the cutoff window
+            new_subjects = (
+                db.session.query(func.count(func.distinct(Quiz.subject_id)))
+                .filter(Quiz.teacher_id == teacher_id, Quiz.created_at >= cutoff, Quiz.subject_id != None)
+                .scalar()
+                or 0
+            )
+        else:
+            total_quizzes = Quiz.query.count()
+            new_quizzes = Quiz.query.filter(Quiz.created_at >= cutoff).count()
+            total_subjects = Subject.query.count()
+            new_subjects = (
+                db.session.query(func.count(func.distinct(Quiz.subject_id)))
+                .filter(Quiz.created_at >= cutoff, Quiz.subject_id != None)
+                .scalar()
+                or 0
+            )
+
+        # total students (all students in system)
+        try:
+            total_students = Student.query.count()
+        except Exception:
+            total_students = 0
+
+        # new students: Student model has no created_at column; default to 0
+        new_students = 0
+    except Exception:
+        total_quizzes = None
+        new_quizzes = None
+        total_subjects = None
+        new_subjects = None
+        total_students = None
+        new_students = None
+
+    return render_template(
+        "teacher/dashboard.html",
+        recent_quizzes=recent_quizzes,
+        total_quizzes=total_quizzes,
+        new_quizzes=new_quizzes,
+        total_subjects=total_subjects,
+        new_subjects=new_subjects,
+        total_students=total_students,
+        new_students=new_students,
+    )
 
 
 @main.route("/teacher/subjects")
