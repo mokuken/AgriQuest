@@ -57,7 +57,7 @@
 
   .weekly-goal { background: linear-gradient(180deg,#7c3aed,#c084fc); color:#fff; border-radius:12px; padding:18px; margin-bottom:18px; }
   .weekly-goal .progress { background: rgba(255,255,255,0.2); height:10px; border-radius:8px; overflow:hidden; margin:12px 0; }
-  .weekly-goal .progress > i { display:block; height:100%; background:#fff; width:80%; }
+  .weekly-goal .progress > i { display:block; height:100%; background:#fff; width: calc(var(--pct,80) * 1%); }
   .weekly-goal .meta { display:flex; justify-content:space-between; align-items:center; }
 
   .strengths { background:#fff; border-radius:12px; padding:18px; border:1px solid #e6e6e6; }
@@ -98,44 +98,40 @@
           <div class="card">
             <h3>Recent Quiz Results</h3>
             <div class="result-list">
-              <div class="result-item green">
-                <div class="result-icon green">🌱</div>
-                <div class="result-meta">
-                  <div class="result-title">Soil Science Fundamentals</div>
-                  <div class="result-sub">Completed 2 hours ago</div>
-                  <div class="result-pill">18/20 Correct</div>
+              {% if attempts and attempts|length > 0 %}
+                {% for a in attempts %}
+                  {% set q = a.quiz %}
+                  <div class="result-item {{ 'green' if a.percent and a.percent >= 85 else ('blue' if a.percent and a.percent >= 70 else 'yellow') }}">
+                    <div class="result-icon {{ 'green' if a.percent and a.percent >= 85 else ('blue' if a.percent and a.percent >= 70 else 'yellow') }}">{{ loop.index }}</div>
+                    <div class="result-meta">
+                      <div class="result-title">{{ q.title if q else 'Quiz #' ~ a.quiz_id }}</div>
+                      <div class="result-sub">{{ a.completed_at.strftime('%b %d, %Y %H:%M') if a.completed_at else 'In progress' }}</div>
+                      <div class="result-pill">{{ a.score if a.score is not none else '?' }}/{{ q.questions|length if q else '?' }} Correct</div>
+                    </div>
+                    <div class="result-score">
+                      {% if a.percent is not none %}
+                        {% if a.percent >= 85 %}
+                          <div class="pct" style="color:#059669;">{{ a.percent|round(1) }}%</div>
+                        {% elif a.percent >= 70 %}
+                          <div class="pct" style="color:#2563eb;">{{ a.percent|round(1) }}%</div>
+                        {% else %}
+                          <div class="pct" style="color:#b45309;">{{ a.percent|round(1) }}%</div>
+                        {% endif %}
+                      {% else %}
+                        <div class="pct">—%</div>
+                      {% endif %}
+                      <div class="label">{{ (a.time_taken_seconds ~ 's') if a.time_taken_seconds else '' }}</div>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="result-item">
+                  <div class="result-meta">
+                    <div class="result-title">No quiz attempts yet</div>
+                    <div class="result-sub">Take your first quiz to see your results here.</div>
+                  </div>
                 </div>
-                <div class="result-score">
-                  <div class="pct">90%</div>
-                  <div class="label">Personal Best</div>
-                </div>
-              </div>
-
-              <div class="result-item blue">
-                <div class="result-icon blue">🔬</div>
-                <div class="result-meta">
-                  <div class="result-title">Plant Cell Biology</div>
-                  <div class="result-sub">Completed yesterday</div>
-                  <div class="result-pill">14/15 Correct</div>
-                </div>
-                <div class="result-score">
-                  <div class="pct" style="color:#2563eb;">93%</div>
-                  <div class="label">Excellent</div>
-                </div>
-              </div>
-
-              <div class="result-item yellow">
-                <div class="result-icon yellow">⚗️</div>
-                <div class="result-meta">
-                  <div class="result-title">Organic Chemistry</div>
-                  <div class="result-sub">Completed 3 days ago</div>
-                  <div class="result-pill">19/25 Correct</div>
-                </div>
-                <div class="result-score">
-                  <div class="pct" style="color:#b45309;">76%</div>
-                  <div class="label">Needs Improvement</div>
-                </div>
-              </div>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -147,10 +143,10 @@
                 <div style="font-weight:700;">Weekly Goal</div>
                 <div style="font-size:0.9rem; opacity:0.95;">Progress</div>
               </div>
-              <div style="font-weight:700;">4/5 Quizzes</div>
+              <div style="font-weight:700;">{{ weekly_goal_completed }} / {{ weekly_goal_total }} Quizzes</div>
             </div>
-            <div class="progress"><i></i></div>
-            <div style="font-size:0.9rem; opacity:0.9;">80% complete - almost there!</div>
+            <div class="progress" style="--pct: {{ weekly_goal_percent }};"><i></i></div>
+            <div style="font-size:0.9rem; opacity:0.9;">{{ weekly_goal_percent }}% complete - {{ weekly_goal_message }}</div>
           </div>
 
           <div class="strengths card" style="margin-top:12px;">

@@ -507,7 +507,48 @@ def teacher_edit_quiz(quiz_id):
 
 @main.route("/student/progress")
 def student_progress():
-    return render_template("student/progress.html")
+    student_id = session.get('student_id')
+    attempts = []
+    if student_id:
+        # load recent attempts for this student (most recent first)
+        attempts = (
+            QuizAttempt.query.filter_by(student_id=student_id)
+            .order_by(QuizAttempt.completed_at.desc())
+            .limit(25)
+            .all()
+        )
+    # Weekly goal calculation: default goal is 5 quizzes per week
+    try:
+        goal = 5
+        now = datetime.utcnow()
+        week_start = now - timedelta(days=7)
+        completed_this_week = 0
+        if student_id:
+            completed_this_week = (
+                QuizAttempt.query.filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None, QuizAttempt.completed_at >= week_start)
+                .count()
+            )
+
+        percent = int((completed_this_week / goal) * 100) if goal > 0 else 0
+        if percent > 100:
+            percent = 100
+
+        weekly_message = "Keep going!" if percent < 100 else "Goal reached — great job!"
+    except Exception:
+        # fallback values in case of any DB error
+        goal = 5
+        completed_this_week = 0
+        percent = 0
+        weekly_message = "Weekly progress unavailable"
+
+    return render_template(
+        "student/progress.html",
+        attempts=attempts,
+        weekly_goal_total=goal,
+        weekly_goal_completed=completed_this_week,
+        weekly_goal_percent=percent,
+        weekly_goal_message=weekly_message,
+    )
 
 # Student settings (mirror teacher settings)
 @main.route("/student/settings")
