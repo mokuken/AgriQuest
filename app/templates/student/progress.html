@@ -145,9 +145,28 @@
               </div>
               <div style="font-weight:700;">{{ weekly_goal_completed }} / {{ weekly_goal_total }} Quizzes</div>
             </div>
-            <div class="progress" style="--pct: {{ weekly_goal_percent }};"><i></i></div>
-            <div style="font-size:0.9rem; opacity:0.9;">{{ weekly_goal_percent }}% complete - {{ weekly_goal_message }}</div>
-          </div>
+              <div class="progress" style="--pct: {{ weekly_goal_percent }};"><i></i></div>
+              <div style="font-size:0.9rem; opacity:0.9;">{{ weekly_goal_percent }}% complete - {{ weekly_goal_message }}</div>
+
+              {# Detailed weekly goals list (if provided) #}
+              {% if weekly_goals and weekly_goals|length > 0 %}
+                <div style="margin-top:12px;">
+                  <h4 style="color:#fff; margin:0 0 8px 0; font-size:1rem;">Goals this week</h4>
+                  {% for goal in weekly_goals %}
+                    {% set pct = (goal.completed * 100 / goal.total)|round(0) if goal.total else 0 %}
+                    <div style="background: rgba(255,255,255,0.08); padding:10px; border-radius:8px; margin-bottom:8px;">
+                      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; color:#fff; font-weight:700;">
+                        <div style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ goal.title or 'Goal' }}</div>
+                        <div style="min-width:56px; text-align:right;">{{ goal.completed }} / {{ goal.total }}</div>
+                      </div>
+                      <div class="goal-bar" data-pct="{{ pct }}" style="height:8px; background: rgba(255,255,255,0.12); border-radius:6px; overflow:hidden; margin-top:8px;">
+                        <i class="goal-bar-fill" style="display:block; height:100%; background:rgba(255,255,255,0.95); width:0%;"></i>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
 
           <div class="strengths card" style="margin-top:12px;">
             <h3 style="margin-top:0;">Strengths & Weaknesses</h3>
@@ -176,4 +195,13 @@
       </div>
     </div>
   </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.goal-bar').forEach(function(el) {
+        var pct = el.getAttribute('data-pct') || 0;
+        var fill = el.querySelector('.goal-bar-fill');
+        if (fill) fill.style.width = pct + '%';
+      });
+    });
+  </script>
 </html>
