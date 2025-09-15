@@ -135,6 +135,23 @@
               </form>
             </section>
 
+            <section class="card">
+              <h3>Personal Goals</h3>
+        <form method="post" action="{{ url_for('main.student_update_info') }}">
+                <div class="form-row two-cols">
+                  <label for="name">Daily Goal</label>
+          <input id="name" name="name" type="text" value="" />
+                </div>
+                <div class="form-row two-cols">
+                  <label for="email">Weekly Goal</label>
+          <input id="email" name="email" type="email" value="" />
+                </div>
+                <div style="margin-top:10px">
+                  <button type="submit" class="btn primary">Update Goals</button>
+                </div>
+              </form>
+            </section>
+
             <section class="card security">
               <h3>Security</h3>
               <form method="post" action="{{ url_for('main.student_update_password') }}">
