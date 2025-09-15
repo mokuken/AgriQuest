@@ -41,7 +41,15 @@ def student_dashboard():
         except Exception:
             completed_today = 0
 
-    return render_template("student/dashboard.html", quizzes=quizzes, daily_goal=daily_goal, daily_completed=completed_today)
+    # compute total quizzes taken by this student
+    quizzes_taken = 0
+    if student_id:
+        try:
+            quizzes_taken = QuizAttempt.query.filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None).count()
+        except Exception:
+            quizzes_taken = 0
+
+    return render_template("student/dashboard.html", quizzes=quizzes, daily_goal=daily_goal, daily_completed=completed_today, quizzes_taken=quizzes_taken)
 
 
 @main.route("/student/quizzes")

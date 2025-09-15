@@ -362,10 +362,10 @@
         </div>
       </div>
       <div class="stats">
-        <div class="total-quizzes">
+    <div class="total-quizzes">
           <div class="stat-left">
             <div class="stat-title">Quizzes Taken</div>
-            <div class="stat-value">47</div>
+      <div class="stat-value">{{ quizzes_taken if quizzes_taken is not none else 0 }}</div>
             <div class="stat-delta">
               +12%
               <span style="color: #6b7280; font-weight: 500"
