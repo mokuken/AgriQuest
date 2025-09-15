@@ -73,3 +73,26 @@ class Option(db.Model):
 	key = db.Column(db.String(5), nullable=False)  # 'A','B','C','D' or other
 	text = db.Column(db.Text, nullable=False)
 
+
+# Records a student's attempt at a quiz
+class QuizAttempt(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
+	student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+	started_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+	completed_at = db.Column(db.DateTime, nullable=True)
+	score = db.Column(db.Integer, nullable=True)
+	percent = db.Column(db.Float, nullable=True)
+	time_taken_seconds = db.Column(db.Integer, nullable=True)
+
+	# relationship: answers for this attempt
+	answers = db.relationship('AttemptAnswer', backref='attempt', cascade='all, delete-orphan', lazy=True)
+
+
+# Individual per-question answers for an attempt
+class AttemptAnswer(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	attempt_id = db.Column(db.Integer, db.ForeignKey('quiz_attempt.id'), nullable=False)
+	question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+	given_answer = db.Column(db.String(200))
+	is_correct = db.Column(db.Boolean, nullable=True)

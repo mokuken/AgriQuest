@@ -521,12 +521,18 @@
   </body>
   <script>
     (function(){
-      const submit = document.getElementById('submit-btn');
-      if(!submit) return;
+  const submit = document.getElementById('submit-btn');
+  if(!submit) return;
   // start time tracking when page loaded
   const quizStartTs = Date.now();
 
-  submit.addEventListener('click', async function(){
+  submit.addEventListener('click', async function(ev){
+        ev.preventDefault();
+        // disable to prevent double submits
+        submit.disabled = true;
+        const origText = submit.textContent;
+        submit.textContent = 'Submitting...';
+
         const form = document.getElementById('quiz-form');
         if(!form){ alert('No quiz loaded'); return; }
         const inputs = form.querySelectorAll('[name^="q-"]');
@@ -549,14 +555,22 @@
   const elapsedMs = Date.now() - quizStartTs;
   const elapsedSeconds = Math.max(0, Math.round(elapsedMs / 1000));
   const payload = { answers, time_taken_seconds: elapsedSeconds };
-  const resp = await fetch(window.location.pathname, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-        if(!resp.ok){ const txt = await resp.text(); alert('Error: ' + txt); return; }
-        const data = await resp.json();
-        // If server returned a redirect URL, navigate there to show the results page
-        if(data && data.redirect){
-          window.location.href = data.redirect;
-          return;
-        }
+  try{
+    const resp = await fetch(window.location.pathname, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    if(!resp.ok){ const txt = await resp.text(); alert('Error: ' + txt); submit.disabled = false; submit.textContent = origText; return; }
+    const data = await resp.json();
+    // If server returned a redirect URL, navigate there to show the results page
+    if(data && data.redirect){
+      // if server included attempt id, append as query param for convenience
+      let url = data.redirect;
+      if(data.attempt_id) url += (url.includes('?') ? '&' : '?') + 'attempt_id=' + encodeURIComponent(data.attempt_id);
+      window.location.href = url;
+      return;
+    }
+  } catch(err){
+    alert('Submission failed: ' + err);
+    submit.disabled = false; submit.textContent = origText; return;
+  }
 
         // fallback: display summary inline and annotate questions
         const msg = `Score: ${data.correct} / ${data.total_questions} (${Math.round(data.percent*100)/100}%)`;
@@ -571,7 +585,8 @@
             qEl.appendChild(note);
           });
         }
-        alert(msg);
+  alert(msg);
+  submit.disabled = false; submit.textContent = origText;
       });
     })();
   </script>
@@ -628,10 +643,21 @@
         const elapsedSeconds = Math.max(0, Math.round(elapsedMs / 1000));
         const payload = { answers, time_taken_seconds: elapsedSeconds };
         try{
+          // Disable submit button UI so user sees progress
+          if(submit){ submit.disabled = true; submit.textContent = 'Auto-submitting...'; }
           const resp = await fetch(window.location.pathname, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-          if(!resp.ok){ console.error('Auto-submit failed', await resp.text()); }
-          else { console.log('Auto-submit success'); }
-        }catch(e){ console.error('Auto-submit error', e); }
+          if(!resp.ok){ console.error('Auto-submit failed', await resp.text()); if(submit){ submit.disabled = false; submit.textContent = 'Submit Quiz'; } }
+          else {
+            console.log('Auto-submit success');
+            // attempt a redirect if server gave a redirect location
+            const data = await resp.json().catch(() => null);
+            if(data && data.redirect){
+              let url = data.redirect;
+              if(data.attempt_id) url += (url.includes('?') ? '&' : '?') + 'attempt_id=' + encodeURIComponent(data.attempt_id);
+              window.location.href = url;
+            }
+          }
+        }catch(e){ console.error('Auto-submit error', e); if(submit){ submit.disabled = false; submit.textContent = 'Submit Quiz'; } }
       }
 
       function showModal(){

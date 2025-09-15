@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 
 from .models import db, Subject, Quiz, Question, Option, Teacher
-from .models import Student
+from .models import Student, QuizAttempt, AttemptAnswer
 
 main = Blueprint("main", __name__)
 
@@ -97,7 +97,31 @@ def student_take_quiz(quiz_id):
         result['time_taken_seconds'] = secs
         result['time_taken'] = f"{mm:02d}:{ss:02d}"
     # store last result in session for display on results page
+    # Persist attempt to DB if a student is logged in
+    attempt_id = None
+    student_id = session.get('student_id')
+    if student_id:
+        try:
+            attempt = QuizAttempt(quiz_id=quiz.id, student_id=student_id, completed_at=db.func.now(), score=score, percent=percent, time_taken_seconds=time_taken_seconds)
+            db.session.add(attempt)
+            db.session.flush()  # get attempt.id
+            # store per-question answers
+            for d in details:
+                aa = AttemptAnswer(attempt_id=attempt.id, question_id=d.get('question_id'), given_answer=str(d.get('given')) if d.get('given') is not None else None, is_correct=d.get('is_correct'))
+                db.session.add(aa)
+            db.session.commit()
+            attempt_id = attempt.id
+            # include attempt id in result for traceability
+            result['attempt_id'] = attempt_id
+        except Exception:
+            db.session.rollback()
+            # If DB save fails, continue gracefully and just keep result in session
+            attempt_id = None
+
     try:
+        # include attempt id in session result when available
+        if attempt_id:
+            result['_attempt_id'] = attempt_id
         session['last_quiz_result'] = result
     except Exception:
         # if session can't store (very large), just return result JSON
