@@ -67,8 +67,8 @@
     .profile-right { flex:1 }
     .form-row { margin-top:10px; display:flex; flex-direction:column }
     .form-row.two-cols { grid-template-columns: 1fr 1fr }
-    label { font-size:0.9rem; color:#556b56; margin-bottom:6px }
-    input[type="text"], input[type="email"], input[type="password"], select { padding:10px 12px; border:1px solid #e6e6e6; border-radius:6px; width:100%; }
+  label { font-size:0.9rem; color:#556b56; margin-bottom:6px }
+  input[type="text"], input[type="email"], input[type="password"], input[type="number"], select { padding:10px 12px; border:1px solid #e6e6e6; border-radius:6px; width:100%; }
     .muted { color:#7a857a; font-size:0.9rem }
     .theme-options { display:flex; gap:12px; margin:8px 0 16px }
 
@@ -137,14 +137,14 @@
 
             <section class="card">
               <h3>Personal Goals</h3>
-              <form method="post" action="{{ url_for('main.student_update_info') }}">
+              <form method="post" action="{{ url_for('main.student_update_goals') }}">
                 <div class="form-row two-cols">
-                  <label for="name">Daily Goal</label>
-                  <input id="name" name="name" type="text" value="" />
+                  <label for="daily_goal">Daily Goal</label>
+                  <input id="daily_goal" name="daily_goal" type="number" min="0" value="{{ student.daily_goal if student else 1 }}" />
                 </div>
                 <div class="form-row two-cols">
-                  <label for="email">Weekly Goal</label>
-                  <input id="email" name="email" type="email" value="" />
+                  <label for="weekly_goal">Weekly Goal</label>
+                  <input id="weekly_goal" name="weekly_goal" type="number" min="0" value="{{ student.weekly_goal if student else 5 }}" />
                 </div>
                 <div style="margin-top:10px">
                   <button type="submit" class="btn primary">Update Goals</button>

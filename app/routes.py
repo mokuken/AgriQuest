@@ -20,7 +20,28 @@ def student_dashboard():
     quizzes = Quiz.query.order_by(Quiz.created_at.desc()).limit(10).all()
     # eager load teacher info if available
     # template will handle missing teacher gracefully
-    return render_template("student/dashboard.html", quizzes=quizzes)
+    # try to fetch student's daily goal
+    student_id = session.get('student_id')
+    student = None
+    daily_goal = 1
+    completed_today = 0
+    if student_id:
+        student = Student.query.filter_by(id=student_id).first()
+        if student:
+            try:
+                daily_goal = int(student.daily_goal or 1)
+            except Exception:
+                daily_goal = 1
+        # compute completed today (simple count of attempts in last 24h)
+        try:
+            from datetime import datetime, timedelta
+            now = datetime.utcnow()
+            since = now - timedelta(days=1)
+            completed_today = QuizAttempt.query.filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None, QuizAttempt.completed_at >= since).count()
+        except Exception:
+            completed_today = 0
+
+    return render_template("student/dashboard.html", quizzes=quizzes, daily_goal=daily_goal, daily_completed=completed_today)
 
 
 @main.route("/student/quizzes")
@@ -519,7 +540,15 @@ def student_progress():
         )
     # Weekly goal calculation: default goal is 5 quizzes per week
     try:
+        # default goal is 5, but prefer student's stored weekly_goal when available
         goal = 5
+        if student_id:
+            s = Student.query.filter_by(id=student_id).first()
+            if s and getattr(s, 'weekly_goal', None) is not None:
+                try:
+                    goal = int(s.weekly_goal)
+                except Exception:
+                    goal = 5
         now = datetime.utcnow()
         week_start = now - timedelta(days=7)
         completed_this_week = 0
@@ -642,3 +671,44 @@ def student_delete_account():
     session.clear()
     flash('Your account has been deleted.', 'success')
     return redirect(url_for('auth.login_student'))
+
+
+@main.route('/student/settings/update_goals', methods=['POST'])
+def student_update_goals():
+    student_id = session.get('student_id')
+    if not student_id:
+        flash('Authentication required.', 'error')
+        return redirect(url_for('auth.login_student'))
+    student = Student.query.filter_by(id=student_id).first()
+    if not student:
+        flash('Student not found.', 'error')
+        return redirect(url_for('auth.login_student'))
+
+    # parse and validate goals
+    daily = request.form.get('daily_goal')
+    weekly = request.form.get('weekly_goal')
+    try:
+        daily_val = int(daily) if daily is not None and str(daily).strip() != '' else None
+    except ValueError:
+        flash('Daily goal must be a number.', 'error')
+        return redirect(url_for('main.student_settings'))
+    try:
+        weekly_val = int(weekly) if weekly is not None and str(weekly).strip() != '' else None
+    except ValueError:
+        flash('Weekly goal must be a number.', 'error')
+        return redirect(url_for('main.student_settings'))
+
+    if daily_val is not None:
+        if daily_val < 0:
+            flash('Daily goal must be zero or positive.', 'error')
+            return redirect(url_for('main.student_settings'))
+        student.daily_goal = daily_val
+    if weekly_val is not None:
+        if weekly_val < 0:
+            flash('Weekly goal must be zero or positive.', 'error')
+            return redirect(url_for('main.student_settings'))
+        student.weekly_goal = weekly_val
+
+    db.session.commit()
+    flash('Goals updated successfully.', 'success')
+    return redirect(url_for('main.student_settings'))
