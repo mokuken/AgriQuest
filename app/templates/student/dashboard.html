@@ -380,10 +380,14 @@
         <div class="active-subjects">
           <div class="stat-left">
             <div class="stat-title">Average Score</div>
-            <div class="stat-value">85%</div>
+            <div class="stat-value">{% if avg_score is not none %}{{ avg_score }}%{% else %}N/A{% endif %}</div>
             <div class="stat-delta" style="color: #10b981">
-              +7
-              <span style="color: #6b7280; font-weight: 500">improvement</span>
+              {% if avg_score is not none %}
+                {% set improvement = '' %}
+                <span style="color: #6b7280; font-weight: 500">since last month</span>
+              {% else %}
+                <span style="color: #6b7280; font-weight: 500">No scores yet</span>
+              {% endif %}
             </div>
           </div>
           <div class="stat-right">

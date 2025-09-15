@@ -49,7 +49,22 @@ def student_dashboard():
         except Exception:
             quizzes_taken = 0
 
-    return render_template("student/dashboard.html", quizzes=quizzes, daily_goal=daily_goal, daily_completed=completed_today, quizzes_taken=quizzes_taken)
+    # compute average percent score for this student across completed attempts
+    avg_score = None
+    if student_id:
+        try:
+            # use SQL aggregate to compute average of percent where percent is not null
+            avg_val = db.session.query(func.avg(QuizAttempt.percent)).filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None, QuizAttempt.percent != None).scalar()
+            if avg_val is not None:
+                # round to 1 decimal place
+                try:
+                    avg_score = round(float(avg_val), 1)
+                except Exception:
+                    avg_score = None
+        except Exception:
+            avg_score = None
+
+    return render_template("student/dashboard.html", quizzes=quizzes, daily_goal=daily_goal, daily_completed=completed_today, quizzes_taken=quizzes_taken, avg_score=avg_score)
 
 
 @main.route("/student/quizzes")
