@@ -131,7 +131,11 @@
       class="{% if request.endpoint == 'main.student_quizzes' %}active{% endif %}"
       >Quizzes</a
     >
-    <a href="#">Analytics</a>
+    <a
+      href="{{ url_for('main.student_progress') }}"
+      class="{% if request.endpoint == 'main.student_progress' %}active{% endif %}"
+      >Progress</a
+    >
     <a
       href="{{ url_for('main.student_settings') }}"
       class="{% if request.endpoint == 'main.student_settings' %}active{% endif %}"

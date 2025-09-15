@@ -481,6 +481,10 @@ def teacher_edit_quiz(quiz_id):
         return redirect(url_for('main.teacher_quizzes'))
 
 
+@main.route("/student/progress")
+def student_progress():
+    return render_template("student/progress.html")
+
 # Student settings (mirror teacher settings)
 @main.route("/student/settings")
 def student_settings():

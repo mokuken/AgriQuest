@@ -5,6 +5,10 @@ auth = Blueprint("auth", __name__)
 
 @auth.route("/student/login", methods=["GET", "POST"])
 def login_student():
+    # if already logged in as student, send to student dashboard
+    if session.get("student_id"):
+        return redirect(url_for("main.student_dashboard"))
+
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
@@ -39,6 +43,10 @@ def register_student():
 
 @auth.route("/teacher/login", methods=["GET", "POST"])
 def login_teacher():
+    # if already logged in as teacher, send to teacher dashboard
+    if session.get("teacher_id"):
+        return redirect(url_for("main.teacher_dashboard"))
+
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
@@ -73,6 +81,12 @@ def register_teacher():
 
 @auth.route("/logout")
 def logout():
+    # preserve redirect target: if a teacher is logged in, go to teacher login; if student, go to student login
+    was_teacher = bool(session.get("teacher_id"))
+    was_student = bool(session.get("student_id"))
     session.clear()
     flash("You have been logged out.")
-    return redirect(url_for("auth.login_teacher"))
+    if was_teacher and not was_student:
+        return redirect(url_for("auth.login_teacher"))
+    # default to student login if student was logged in or no role detected
+    return redirect(url_for("auth.login_student"))
