@@ -64,7 +64,43 @@ def student_dashboard():
         except Exception:
             avg_score = None
 
-    return render_template("student/dashboard.html", quizzes=quizzes, daily_goal=daily_goal, daily_completed=completed_today, quizzes_taken=quizzes_taken, avg_score=avg_score)
+        # compute consecutive days streak based on completed quiz attempts
+        days_streak = 0
+        if student_id:
+            try:
+                # fetch distinct completed dates (UTC date portion)
+                attempts = (
+                    QuizAttempt.query.filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None)
+                    .with_entities(QuizAttempt.completed_at)
+                    .order_by(QuizAttempt.completed_at.desc())
+                    .all()
+                )
+                # build a set of date objects (UTC)
+                completed_dates = set()
+                for (dt,) in attempts:
+                    if dt is None:
+                        continue
+                    try:
+                        # if it's a SQL expression (func.now()) it will be datetime when loaded
+                        d = dt.date()
+                    except Exception:
+                        # fallback: attempt to parse or skip
+                        continue
+                    completed_dates.add(d)
+
+                # compute streak ending today (UTC)
+                today = datetime.utcnow().date()
+                cur = today
+                streak = 0
+                # count backward while each consecutive date exists
+                while cur in completed_dates:
+                    streak += 1
+                    cur = cur - timedelta(days=1)
+                days_streak = streak
+            except Exception:
+                days_streak = 0
+
+        return render_template("student/dashboard.html", quizzes=quizzes, daily_goal=daily_goal, daily_completed=completed_today, quizzes_taken=quizzes_taken, avg_score=avg_score, days_streak=days_streak)
 
 
 @main.route("/student/quizzes")

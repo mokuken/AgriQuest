@@ -373,7 +373,7 @@
         <div class="total-students">
           <div class="stat-left">
             <div class="stat-title">Days Streak</div>
-            <div class="stat-value">12</div>
+            <div class="stat-value">{{ days_streak if days_streak is not none else 0 }}</div>
             <div class="stat-delta" style="color: #10b981">
               Days
               <span style="color: #6b7280; font-weight: 500">Keep it up!</span>
