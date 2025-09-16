@@ -386,9 +386,9 @@
         <div class="avg-score">
           <div class="stat-left">
             <div class="stat-title">Rank</div>
-            <div class="stat-value">#3</div>
+            <div class="stat-value">{% if current_student_rank %}#{{ current_student_rank }}{% else %}—{% endif %}</div>
             <div class="stat-delta" style="color: #10b981">
-              Top 5%
+              {% if current_student_avg is not none %}Avg {{ current_student_avg }}%{% else %}No score yet{% endif %}
               <span style="color: #6b7280; font-weight: 500">in class</span>
             </div>
           </div>

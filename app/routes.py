@@ -100,7 +100,38 @@ def student_dashboard():
             except Exception:
                 days_streak = 0
 
-        return render_template("student/dashboard.html", quizzes=quizzes, daily_goal=daily_goal, daily_completed=completed_today, quizzes_taken=quizzes_taken, avg_score=avg_score, days_streak=days_streak)
+        # compute student's global rank (dense ranking) based on average percent across completed attempts
+        current_student_rank = None
+        current_student_avg = None
+        try:
+            averages = (
+                db.session.query(
+                    Student.id.label('student_id'),
+                    func.avg(QuizAttempt.percent).label('avg_percent')
+                )
+                .join(QuizAttempt, QuizAttempt.student_id == Student.id)
+                .filter(QuizAttempt.completed_at != None, QuizAttempt.percent != None)
+                .group_by(Student.id)
+                .order_by(func.avg(QuizAttempt.percent).desc())
+                .all()
+            )
+
+            last_score = None
+            dense_rank = 0
+            for row in averages:
+                avg = float(row.avg_percent) if row.avg_percent is not None else 0.0
+                if last_score is None or avg != last_score:
+                    dense_rank += 1
+                last_score = avg
+                if row.student_id == student_id:
+                    current_student_rank = dense_rank
+                    current_student_avg = round(avg, 1)
+                    break
+        except Exception:
+            current_student_rank = None
+            current_student_avg = None
+
+        return render_template("student/dashboard.html", quizzes=quizzes, daily_goal=daily_goal, daily_completed=completed_today, quizzes_taken=quizzes_taken, avg_score=avg_score, days_streak=days_streak, current_student_rank=current_student_rank, current_student_avg=current_student_avg)
 
 
 @main.route("/student/quizzes")
