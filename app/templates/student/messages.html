@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  </head>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9e9;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .left {
+      width: 20%;
+      background: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .right {
+      height: 100vh;
+      width: 80%;
+      overflow-y: scroll;
+      padding-bottom: 20px;
+    }
+
+    .header {
+      width: 100%;
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: 1fr;
+      grid-column-gap: 0px;
+      grid-row-gap: 0px;
+      padding: 0 10px;
+    }
+
+    .total-quizzes {
+      grid-area: 1 / 1 / 2 / 2;
+    }
+    .active-subjects {
+      grid-area: 1 / 2 / 2 / 3;
+    }
+    .total-students {
+      grid-area: 1 / 3 / 2 / 4;
+    }
+    .avg-score {
+      grid-area: 1 / 4 / 2 / 5;
+    }
+
+    .total-quizzes,
+    .active-subjects,
+    .total-students,
+    .avg-score {
+      background: white;
+      margin: 0 10px;
+      padding: 20px 25px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #e6e6e6;
+    }
+    .stat-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .stat-title {
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .stat-delta {
+      font-size: 0.9rem;
+      color: #10b981; /* green for positive */
+      font-weight: 600;
+    }
+    .stat-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stat-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .stat-icon.blue {
+      background: linear-gradient(180deg, #e8f1ff, #dfeeff);
+      color: #1e3a8a;
+    }
+    .stat-icon.green {
+      background: linear-gradient(180deg, #e9f9f0, #dff3e6);
+      color: #065f46;
+    }
+    .stat-icon.purple {
+      background: linear-gradient(180deg, #f3e9ff, #eadcff);
+      color: #6b21a8;
+    }
+    .stat-icon.orange {
+      background: linear-gradient(180deg, #fff3e6, #ffe7ce);
+      color: #b45309;
+    }
+
+    .section {
+      display: flex;
+      gap: 20px;
+      padding: 0 20px;
+      margin-top: 20px;
+    }
+
+    .section-left,
+    .section-right {
+      border-radius: 12px;
+      background-color: white;
+      border: 1px solid #e0e0e0;
+    }
+
+    .section-left {
+      width: 25%;
+    }
+
+    .section-right {
+      width: 75%;
+    }
+
+    .messaging-wrapper {
+      display: flex;
+      gap: 20px;
+      height: 80vh;
+      border-radius: 12px;
+      background: white;
+      padding: 20px;
+    }
+
+  /* Wireframe-specific styles and guidelines (inline only) */
+  .panel { padding: 16px; }
+  .panel h3 { font-size: 1.05rem; margin-bottom: 6px; color: #25311f; }
+  .guideline { font-size: 0.9rem; color: #6b7280; margin-bottom: 12px; }
+
+  .people-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .person { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; cursor: pointer; }
+  .person:hover { background: #f3f4f6; }
+  .person.active { background: #e6f4e6; border-left: 4px solid #2f6b2f; }
+  .avatar { width: 44px; height: 44px; border-radius: 8px; background: #e6e6e6; display:flex; align-items:center; justify-content:center; color:#374151; font-weight:700; }
+  .meta { display:flex; flex-direction:column; }
+  .name { font-weight:600; color:#111827; }
+  .snippet { font-size:0.85rem; color:#6b7280; }
+  .unread { margin-left:auto; background:#ef4444; color:white; padding:4px 8px; border-radius:999px; font-size:0.75rem; }
+
+  .messages-area { flex: 1 1 auto; display:flex; flex-direction:column; gap:12px; overflow:auto; padding:8px; }
+  .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#6b7280; }
+  .empty-state h4 { color:#111827; margin-bottom:6px; }
+
+  .composer { display:flex; gap:8px; padding:10px 0 0 0; border-top:1px solid #e6e6e6; }
+  .composer input { flex:1; padding:10px 12px; border-radius:8px; border:1px solid #d1d5db; }
+  .composer button { padding:10px 16px; border-radius:8px; border:none; background:#2f6b2f; color:white; font-weight:600; }
+
+  /* Adapt existing layout to ensure wireframe alignment */
+  .section-left .panel { height: calc(70vh - 32px); overflow:auto; }
+  .section-right .panel { display:flex; flex-direction:column; width:100%; }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const people = document.querySelectorAll('.people-list .person');
+      const messagesArea = document.querySelector('.messages-area');
+
+      // Example dataset keyed by person name (simple inline examples)
+      const convo = {
+        'Student Name': [
+          { from: 'student', text: 'Hi teacher — I have a question about the quiz tomorrow. Can I resubmit question 3?', time: '9:12 AM' },
+          { from: 'teacher', text: "Yes — you can resubmit. I'll allow it until 11:59 PM.", time: '9:15 AM' },
+          { from: 'student', text: 'Thanks! Also, will there be practice problems?', time: '9:16 AM' }
+        ],
+        'Colleague': [
+          { from: 'colleague', text: 'Can you share the rubric for the project?', time: '8:05 AM' },
+          { from: 'teacher', text: 'I uploaded it in the classroom drive.', time: '8:10 AM' }
+        ],
+        'Another': [
+          { from: 'another', text: 'Reminder: staff meeting at 3 PM.', time: 'Yesterday' }
+        ]
+      };
+
+      function renderMessages(name) {
+        const items = convo[name] || [];
+        messagesArea.innerHTML = '';
+        items.forEach(msg => {
+          const div = document.createElement('div');
+          const isSent = msg.from === 'teacher';
+          div.className = 'message ' + (isSent ? 'sent' : 'received');
+          div.style.alignSelf = isSent ? 'flex-end' : 'flex-start';
+          div.style.maxWidth = '70%';
+          div.style.background = isSent ? '#d1e7d6' : '#eef2e6';
+          div.style.padding = '10px 12px';
+          div.style.borderRadius = '10px';
+
+          const text = document.createElement('div');
+          text.style.fontSize = '0.95rem';
+          text.style.color = '#111827';
+          text.textContent = msg.text;
+
+          const time = document.createElement('div');
+          time.style.fontSize = '0.75rem';
+          time.style.color = '#6b7280';
+          time.style.marginTop = '8px';
+          time.style.textAlign = isSent ? 'right' : 'left';
+          time.textContent = msg.time;
+
+          div.appendChild(text);
+          div.appendChild(time);
+          messagesArea.appendChild(div);
+        });
+      }
+
+      people.forEach(p => {
+        p.addEventListener('click', function () {
+          people.forEach(x => x.classList.remove('active'));
+          this.classList.add('active');
+          const name = this.querySelector('.name')?.textContent?.trim();
+          if (name) renderMessages(name);
+        });
+      });
+
+      // Auto-select the first person if available
+      if (people.length > 0) {
+        const first = people[0];
+        first.classList.add('active');
+        const firstName = first.querySelector('.name')?.textContent?.trim();
+        if (firstName) renderMessages(firstName);
+      }
+    });
+  </script>
+  <body>
+    <div class="left">
+
+      {% include 'partials/teacher_sidebar.html' %}
+
+    </div>
+    <div class="right">
+      <div class="header">
+        <div class="header-title">
+          <span style="font-size: 1.5rem; font-weight: 700; color: #2d3a2d"
+            >Messages</span
+          >
+          <span style="font-size: 1rem; color: grey"
+            >Live chat with students and colleagues.</span
+          >
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <select id="start-conv-select">
+            <option value="">Start conversation...</option>
+            {% for t in teachers %}
+              <option value="{{ t.id }}">{{ t.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="section" style="width: 100%;">
+          <div class="section-left">
+            <div class="panel">
+              <h3>People</h3>
+              <p class="guideline">Select a conversation to view messages. This panel lists recent contacts and unread counts.</p>
+              <ul class="people-list" id="people-list">
+                {% if conversations and conversations|length > 0 %}
+                  {% for c in conversations %}
+                    <li class="person" data-conv-id="{{ c.id }}">
+                      <div class="meta">
+                        <div class="name">{{ c.teacher.name if c.teacher else 'Teacher' }}</div>
+                        <div class="snippet">{{ c.last.text[:60] if c.last else '' }}</div>
+                      </div>
+                      {% if c.unread and c.unread > 0 %}
+                        <div class="unread">{{ c.unread }}</div>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                {% else %}
+                  <li class="person placeholder">No conversations yet.</li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+          <div class="section-right">
+            <div class="panel messaging-wrapper">
+              <div class="messages-area" id="messages-area">
+                <!-- messages will be loaded here -->
+              </div>
+
+              <form class="composer" onsubmit="return false;" id="composer-form">
+                <input type="text" placeholder="Type a message..." id="composer-input" />
+                <button type="submit">Send</button>
+              </form>
+            </div>
+          </div>
+      </div>
+    </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const people = document.querySelectorAll('.people-list .person');
+      const messagesArea = document.getElementById('messages-area');
+      const composer = document.getElementById('composer-form');
+      const input = document.getElementById('composer-input');
+      let activeConvId = null;
+
+      function renderMessages(items) {
+        messagesArea.innerHTML = '';
+        if (!items || items.length === 0) {
+          messagesArea.innerHTML = '<div class="empty-state"><h4>No messages yet</h4><div class="guideline">Start the conversation by sending a message.</div></div>';
+          return;
+        }
+        items.forEach(msg => {
+          const div = document.createElement('div');
+          const isSent = msg.sender_role === 'student' ? true : false;
+          div.className = 'message ' + (isSent ? 'sent' : 'received');
+          div.style.alignSelf = isSent ? 'flex-end' : 'flex-start';
+          div.style.maxWidth = '70%';
+          div.style.background = isSent ? '#d1e7d6' : '#eef2e6';
+          div.style.padding = '10px 12px';
+          div.style.borderRadius = '10px';
+
+          const text = document.createElement('div');
+          text.style.fontSize = '0.95rem';
+          text.style.color = '#111827';
+          text.textContent = msg.text;
+
+          const time = document.createElement('div');
+          time.style.fontSize = '0.75rem';
+          time.style.color = '#6b7280';
+          time.style.marginTop = '8px';
+          time.style.textAlign = isSent ? 'right' : 'left';
+          time.textContent = new Date(msg.created_at).toLocaleString();
+
+          div.appendChild(text);
+          div.appendChild(time);
+          messagesArea.appendChild(div);
+        });
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+      }
+
+      async function loadConversation(convId) {
+        if (!convId) return;
+        activeConvId = convId;
+        try {
+          const res = await fetch('/api/messages/' + convId);
+          if (!res.ok) throw new Error('Failed to load');
+          const data = await res.json();
+          renderMessages(data.messages || []);
+          // mark read
+          await fetch('/api/messages/' + convId + '/read', {method: 'POST'});
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      people.forEach(p => {
+        p.addEventListener('click', function () {
+          people.forEach(x => x.classList.remove('active'));
+          this.classList.add('active');
+          const convId = this.getAttribute('data-conv-id');
+          if (convId) loadConversation(convId);
+        });
+      });
+
+      if (people.length > 0) {
+        const first = people[0];
+        first.classList.add('active');
+        const id = first.getAttribute('data-conv-id');
+        if (id) loadConversation(id);
+      }
+
+      composer.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const txt = input.value && input.value.trim();
+        if (!txt) return;
+        const payload = {text: txt, sender_role: 'student'};
+        if (activeConvId) payload.conversation_id = activeConvId;
+        else {
+          alert('Select a conversation first.');
+          return;
+        }
+        try {
+          const r = await fetch('/api/messages/send', {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+          if (!r.ok) throw new Error('send failed');
+          input.value = '';
+          await loadConversation(activeConvId);
+        } catch (err) {
+          console.error(err);
+        }
+      });
+
+      const startSel = document.getElementById('start-conv-select');
+      if (startSel) {
+        startSel.addEventListener('change', async function () {
+          const teacherId = this.value;
+          if (!teacherId) return;
+          try {
+            const r = await fetch('/api/messages/send', {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({text: 'Hello', sender_role: 'student', other_id: parseInt(teacherId)})});
+            if (!r.ok) throw new Error('create conv failed');
+            window.location.reload();
+          } catch (err) { console.error(err); }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

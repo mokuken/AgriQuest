@@ -141,6 +141,11 @@
       class="{% if request.endpoint == 'main.teacher_students' or request.endpoint == 'main.teacher_view_student' %}active{% endif %}"
       >Students</a
     >
+    <a
+      href="{{ url_for('main.teacher_messages') }}"
+      class="{% if request.endpoint == 'main.teacher_messages' %}active{% endif %}"
+      >Messages</a
+    >
     <a href="#">Analytics</a>
     <a
       href="{{ url_for('main.teacher_settings') }}"

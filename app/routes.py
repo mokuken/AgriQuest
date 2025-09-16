@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 
 from .models import db, Subject, Quiz, Question, Option, Teacher
-from .models import Student, QuizAttempt, AttemptAnswer
+from .models import Student, QuizAttempt, AttemptAnswer, Conversation, Message
 
 main = Blueprint("main", __name__)
 
@@ -773,6 +773,157 @@ def teacher_view_student(student_id):
         subject_strengths = []
 
     return render_template('partials/view_student.html', quizzes=quizzes, daily_goal=dg, daily_completed=dc, quizzes_taken=quizzes_taken, avg_score=avg_score, days_streak=days_streak, current_student_rank=current_student_rank, current_student_avg=current_student_avg, student=student, weekly_goal_total=weekly_goal_total, weekly_goal_completed=weekly_goal_completed, weekly_goal_percent=weekly_goal_percent, weekly_goal_message=weekly_goal_message, subject_strengths=subject_strengths)
+
+@main.route("/teacher/messages")
+def teacher_messages():
+    # list conversations for this teacher (show student names and unread counts)
+    teacher_id = session.get('teacher_id')
+    conversations = []
+    if teacher_id:
+        convs = Conversation.query.filter_by(teacher_id=teacher_id).order_by(Conversation.created_at.desc()).all()
+        for c in convs:
+            # last message snippet & unread count
+            last = None
+            unread = 0
+            if c.messages:
+                last = c.messages[-1]
+                unread = Message.query.filter(Message.conversation_id == c.id, Message.sender_role == 'student', Message.read == False).count()
+            conversations.append({'id': c.id, 'student': c.student, 'last': last, 'unread': unread})
+    # also provide a list of students to start a new conversation
+    students = Student.query.order_by(Student.name.asc()).all()
+    return render_template("teacher/messages.html", conversations=conversations, students=students)
+
+
+@main.route("/student/messages")
+def student_messages():
+    # list conversations for this student
+    student_id = session.get('student_id')
+    conversations = []
+    if student_id:
+        convs = Conversation.query.filter_by(student_id=student_id).order_by(Conversation.created_at.desc()).all()
+        for c in convs:
+            last = None
+            unread = 0
+            if c.messages:
+                last = c.messages[-1]
+                unread = Message.query.filter(Message.conversation_id == c.id, Message.sender_role == 'teacher', Message.read == False).count()
+            conversations.append({'id': c.id, 'teacher': c.teacher, 'last': last, 'unread': unread})
+    # include list of teachers for starting a new conversation
+    teachers = Teacher.query.order_by(Teacher.name.asc()).all()
+    return render_template('student/messages.html', conversations=conversations, teachers=teachers)
+
+
+# API: fetch messages for a conversation
+@main.route('/api/messages/<int:conversation_id>')
+def api_get_messages(conversation_id):
+    conv = Conversation.query.filter_by(id=conversation_id).first()
+    if not conv:
+        return jsonify({'error': 'Conversation not found'}), 404
+    msgs = []
+    for m in conv.messages:
+        msgs.append({'id': m.id, 'sender_role': m.sender_role, 'sender_id': m.sender_id, 'text': m.text, 'created_at': m.created_at.isoformat(), 'read': m.read})
+    return jsonify({'conversation_id': conv.id, 'messages': msgs})
+
+
+# API: send a message (creates conversation if needed)
+@main.route('/api/messages/send', methods=['POST'])
+def api_send_message():
+    data = request.get_json() or {}
+    conversation_id = data.get('conversation_id')
+    text = data.get('text')
+    sender_role = data.get('sender_role')
+
+    if not text or not sender_role:
+        return jsonify({'error': 'Missing fields'}), 400
+
+    # determine sender id based on role from session
+    sender_id = None
+    if sender_role == 'teacher':
+        sender_id = session.get('teacher_id')
+    elif sender_role == 'student':
+        sender_id = session.get('student_id')
+    else:
+        return jsonify({'error': 'Invalid sender_role'}), 400
+
+    if not sender_id:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    conv = None
+    if conversation_id:
+        conv = Conversation.query.filter_by(id=conversation_id).first()
+
+    # If conversation missing, optionally create when teacher->student or student->teacher
+    if not conv:
+        # require the other_party id in the payload
+        other_id = data.get('other_id')
+        if not other_id:
+            return jsonify({'error': 'conversation_id missing and other_id not provided to create conversation'}), 400
+        if sender_role == 'teacher':
+            conv = Conversation(teacher_id=sender_id, student_id=other_id)
+        else:
+            conv = Conversation(teacher_id=other_id, student_id=sender_id)
+        db.session.add(conv)
+        db.session.flush()
+
+    try:
+        msg = Message(conversation_id=conv.id, sender_role=sender_role, sender_id=sender_id, text=text)
+        db.session.add(msg)
+        db.session.commit()
+        return jsonify({'status': 'ok', 'message_id': msg.id, 'conversation_id': conv.id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+# API: mark messages as read in a conversation for the current user
+@main.route('/api/messages/<int:conversation_id>/read', methods=['POST'])
+def api_mark_read(conversation_id):
+    conv = Conversation.query.filter_by(id=conversation_id).first()
+    if not conv:
+        return jsonify({'error': 'Conversation not found'}), 404
+    # determine viewer role
+    teacher_id = session.get('teacher_id')
+    student_id = session.get('student_id')
+    # mark messages sent by the opposite role as read
+    try:
+        if teacher_id and conv.teacher_id == teacher_id:
+            Message.query.filter(Message.conversation_id == conv.id, Message.sender_role == 'student', Message.read == False).update({'read': True})
+        elif student_id and conv.student_id == student_id:
+            Message.query.filter(Message.conversation_id == conv.id, Message.sender_role == 'teacher', Message.read == False).update({'read': True})
+        else:
+            return jsonify({'error': 'Not a participant'}), 403
+        db.session.commit()
+        return jsonify({'status': 'ok'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@main.route('/api/conversations/get_or_create', methods=['POST'])
+def api_get_or_create_conversation():
+    data = request.get_json() or {}
+    student_id = data.get('student_id')
+
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        return jsonify({'error': 'Authentication required (teacher)'}), 401
+    if not student_id:
+        return jsonify({'error': 'student_id required'}), 400
+
+    try:
+        # check for existing conversation
+        conv = Conversation.query.filter_by(teacher_id=teacher_id, student_id=student_id).first()
+        if conv:
+            return jsonify({'conversation_id': conv.id, 'created': False}), 200
+
+        # create new one
+        conv = Conversation(teacher_id=teacher_id, student_id=student_id)
+        db.session.add(conv)
+        db.session.commit()
+        return jsonify({'conversation_id': conv.id, 'created': True}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 @main.route("/teacher/settings")
 def teacher_settings():

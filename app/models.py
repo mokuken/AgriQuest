@@ -101,3 +101,29 @@ class AttemptAnswer(db.Model):
 	question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
 	given_answer = db.Column(db.String(200))
 	is_correct = db.Column(db.Boolean, nullable=True)
+
+
+# Messaging models: simple Conversation between a teacher and a student and messages
+class Conversation(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable=True)
+	student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=True)
+	created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+
+	# messages relationship
+	messages = db.relationship('Message', backref='conversation', cascade='all, delete-orphan', lazy=True)
+
+	# convenience relationships to load participants
+	teacher = db.relationship('Teacher', backref=db.backref('conversations', lazy='dynamic'))
+	student = db.relationship('Student', backref=db.backref('conversations', lazy='dynamic'))
+
+
+class Message(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	conversation_id = db.Column(db.Integer, db.ForeignKey('conversation.id'), nullable=False)
+	# sender_role: 'teacher' or 'student'
+	sender_role = db.Column(db.String(20), nullable=False)
+	sender_id = db.Column(db.Integer, nullable=False)
+	text = db.Column(db.Text, nullable=False)
+	created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+	read = db.Column(db.Boolean, nullable=False, default=False)

@@ -371,7 +371,7 @@
                       <td style="padding: 12px 8px; vertical-align: middle;">{% if s.avg_percent is not none %}{{ s.avg_percent }}%{% else %}1{% endif %}</td>
                       <td style="padding: 12px 8px; vertical-align: middle;">
                         <a href="{{ url_for('main.teacher_view_student', student_id=s.id) }}" style="color: #2563eb; font-weight: 700; text-decoration: none; margin-right: 12px;">View</a>
-                        <a href="#" style="color: #10b981; font-weight: 700; text-decoration: none;">Message</a>
+                        <a href="#" class="message-btn" data-student-id="{{ s.id }}" style="color: #10b981; font-weight: 700; text-decoration: none;">Message</a>
                       </td>
                     </tr>
                   {% endfor %}
@@ -387,4 +387,27 @@
       </div>
     </div>
   </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.message-btn').forEach(function(el) {
+        el.addEventListener('click', async function(e) {
+          e.preventDefault();
+          const sid = this.getAttribute('data-student-id');
+          if (!sid) return;
+          try {
+            const res = await fetch('/api/conversations/get_or_create', {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({student_id: parseInt(sid)})});
+            if (!res.ok) throw new Error('failed');
+            const data = await res.json();
+            const convId = data.conversation_id;
+            if (convId) {
+              window.location.href = '/teacher/messages?conv_id=' + convId;
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Could not create conversation.');
+          }
+        });
+      });
+    });
+  </script>
 </html>
