@@ -460,7 +460,49 @@ def teacher_create_quiz():
 
 @main.route("/teacher/students")
 def teacher_students():
-    return render_template("teacher/students.html")
+    # Show list of students with total quizzes taken and average percent score
+    try:
+        # Use a left join aggregate to compute counts and averages per student in one query
+        rows = (
+            db.session.query(
+                Student.id.label('id'),
+                Student.name.label('name'),
+                Student.email.label('email'),
+                func.count(QuizAttempt.id).label('total_taken'),
+                func.avg(QuizAttempt.percent).label('avg_percent')
+            )
+            .outerjoin(QuizAttempt, QuizAttempt.student_id == Student.id)
+            .group_by(Student.id)
+            .order_by(Student.name.asc())
+            .all()
+        )
+
+        students = []
+        for r in rows:
+            avg = None
+            try:
+                if r.avg_percent is not None:
+                    avg = round(float(r.avg_percent), 1)
+            except Exception:
+                avg = None
+
+            students.append({
+                'id': r.id,
+                'name': r.name,
+                'email': r.email,
+                'total_taken': int(r.total_taken or 0),
+                'avg_percent': avg,
+            })
+    except Exception:
+        # On error, fallback to simple list of students without metrics
+        students = []
+        try:
+            for s in Student.query.order_by(Student.name.asc()).all():
+                students.append({'id': s.id, 'name': s.name, 'email': s.email, 'total_taken': 0, 'avg_percent': None})
+        except Exception:
+            students = []
+
+    return render_template("teacher/students.html", students=students)
 
 @main.route("/teacher/settings")
 def teacher_settings():

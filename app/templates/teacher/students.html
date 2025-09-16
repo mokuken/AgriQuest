@@ -340,75 +340,41 @@
             <input type="text" placeholder="Find student..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 1rem; width: 220px;" />
             <a style="color: #10b981; text-decoration: none; font-weight: 700">View All</a>
           </div>
-          <!-- Top Student Card 1 -->
-          <div style="background: #fff7f0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #ffe7ce; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #b45309;">
-              <span style="font-size: 1.5rem; font-weight: bold;">1</span>
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; color: #111827;">Alex Johnson</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Score: 98%</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-weight: 600; color: #111827;">Agronomy</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Grade 12</div>
-            </div>
-          </div>
-          <!-- Top Student Card 2 -->
-          <div style="background: #f3e9ff; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #eadcff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #6b21a8;">
-              <span style="font-size: 1.5rem; font-weight: bold;">2</span>
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; color: #111827;">Maria Lopez</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Score: 95%</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-weight: 600; color: #111827;">Horticulture</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Grade 11</div>
-            </div>
-          </div>
-          <!-- Top Student Card 3 -->
-          <div style="background: #e9f9f0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #dff3e6; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #065f46;">
-              <span style="font-size: 1.5rem; font-weight: bold;">3</span>
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; color: #111827;">Samuel Lee</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Score: 93%</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-weight: 600; color: #111827;">Soil Science</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Grade 12</div>
-            </div>
-          </div>
-          <!-- Top Student Card 4 -->
-          <div style="background: #f6fefc; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #e9f9f0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #15803d;">
-              <span style="font-size: 1.5rem; font-weight: bold;">4</span>
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; color: #111827;">Priya Singh</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Score: 91%</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-weight: 600; color: #111827;">Entomology</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Grade 11</div>
-            </div>
-          </div>
-          <!-- Top Student Card 5 -->
-          <div style="background: #f6f8ff; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #e6f0ff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #2563eb;">
-              <span style="font-size: 1.5rem; font-weight: bold;">5</span>
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: 700; color: #111827;">Fatima Noor</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Score: 89%</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-weight: 600; color: #111827;">Plant Pathology</div>
-              <div style="color: #6b7280; font-size: 0.95rem;">Grade 10</div>
-            </div>
+          <!-- Dynamic students table -->
+          <div style="margin-top: 10px; overflow-x: auto;">
+            <table style="width:100%; border-collapse: collapse; min-width: 720px;">
+              <thead>
+                <tr style="text-align: left; border-bottom: 2px solid #e6e6e6;">
+                  <th style="padding: 12px 8px;">#</th>
+                  <th style="padding: 12px 8px;">Name</th>
+                  <th style="padding: 12px 8px;">Email</th>
+                  <th style="padding: 12px 8px;">Quizzes Taken</th>
+                  <th style="padding: 12px 8px;">Avg Score</th>
+                  <th style="padding: 12px 8px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if students and students|length > 0 %}
+                  {% for s in students %}
+                    <tr style="border-bottom: 1px solid #f1f1f1;">
+                      <td style="padding: 12px 8px; vertical-align: middle;">{{ loop.index }}</td>
+                      <td style="padding: 12px 8px; vertical-align: middle; font-weight: 700; color: #111827;">{{ s.name }}</td>
+                      <td style="padding: 12px 8px; vertical-align: middle; color: #6b7280;">{{ s.email }}</td>
+                      <td style="padding: 12px 8px; vertical-align: middle;">{{ s.total_taken }}</td>
+                      <td style="padding: 12px 8px; vertical-align: middle;">{% if s.avg_percent is not none %}{{ s.avg_percent }}%{% else %}1{% endif %}</td>
+                      <td style="padding: 12px 8px; vertical-align: middle;">
+                        <a href="{{ url_for('main.student_settings') }}?student_id={{ s.id }}" style="color: #2563eb; font-weight: 700; text-decoration: none; margin-right: 12px;">View</a>
+                        <a href="#" style="color: #10b981; font-weight: 700; text-decoration: none;">Message</a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="6" style="padding: 18px; text-align: center; color: #6b7280;">No students found.</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
