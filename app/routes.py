@@ -504,6 +504,157 @@ def teacher_students():
 
     return render_template("teacher/students.html", students=students)
 
+
+@main.route('/teacher/student/<int:student_id>')
+def teacher_view_student(student_id):
+    """Teacher-facing view of a single student's progress.
+    Collects the same metrics as the student dashboard/progress endpoints but for the
+    specified student_id and renders the partial `view_student.html`.
+    """
+    # load student
+    student = Student.query.filter_by(id=student_id).first()
+    if not student:
+        flash('Student not found.', 'error')
+        return redirect(url_for('main.teacher_students'))
+
+    # recent quizzes attempted by this student
+    attempts = (
+        QuizAttempt.query.filter_by(student_id=student_id)
+        .order_by(QuizAttempt.completed_at.desc())
+        .limit(25)
+        .all()
+    )
+
+    # build list of recent quiz attempts for this student (most recent first)
+    # the template will render quiz info from the related Quiz on each attempt
+    quizzes = (
+        QuizAttempt.query.filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None)
+        .order_by(QuizAttempt.completed_at.desc())
+        .limit(10)
+        .all()
+    )
+
+    # aggregate metrics similar to student_dashboard
+    quizzes_taken = QuizAttempt.query.filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None).count()
+
+    avg_score = None
+    try:
+        avg_val = db.session.query(func.avg(QuizAttempt.percent)).filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None, QuizAttempt.percent != None).scalar()
+        if avg_val is not None:
+            avg_score = round(float(avg_val), 1)
+    except Exception:
+        avg_score = None
+
+    # streak
+    days_streak = 0
+    try:
+        attempts_dates = (
+            QuizAttempt.query.filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None)
+            .with_entities(QuizAttempt.completed_at)
+            .order_by(QuizAttempt.completed_at.desc())
+            .all()
+        )
+        completed_dates = set()
+        for (dt,) in attempts_dates:
+            if dt:
+                try:
+                    completed_dates.add(dt.date())
+                except Exception:
+                    continue
+        today = datetime.utcnow().date()
+        cur = today
+        streak = 0
+        while cur in completed_dates:
+            streak += 1
+            cur = cur - timedelta(days=1)
+        days_streak = streak
+    except Exception:
+        days_streak = 0
+
+    # ranking among students
+    current_student_rank = None
+    current_student_avg = None
+    try:
+        averages = (
+            db.session.query(
+                Student.id.label('student_id'),
+                func.avg(QuizAttempt.percent).label('avg_percent')
+            )
+            .join(QuizAttempt, QuizAttempt.student_id == Student.id)
+            .filter(QuizAttempt.completed_at != None, QuizAttempt.percent != None)
+            .group_by(Student.id)
+            .order_by(func.avg(QuizAttempt.percent).desc())
+            .all()
+        )
+        last_score = None
+        dense_rank = 0
+        for row in averages:
+            avg = float(row.avg_percent) if row.avg_percent is not None else 0.0
+            if last_score is None or avg != last_score:
+                dense_rank += 1
+            last_score = avg
+            if row.student_id == student_id:
+                current_student_rank = dense_rank
+                current_student_avg = round(avg, 1)
+                break
+    except Exception:
+        current_student_rank = None
+        current_student_avg = None
+
+    # today's goal and completed count
+    dg = student.daily_goal if student and getattr(student, 'daily_goal', None) is not None else 1
+    dc = QuizAttempt.query.filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None, QuizAttempt.completed_at >= (datetime.utcnow() - timedelta(days=1))).count()
+
+    # weekly goal calculation (mirror student_progress)
+    try:
+        weekly_goal_total = 5
+        if student and getattr(student, 'weekly_goal', None) is not None:
+            try:
+                weekly_goal_total = int(student.weekly_goal)
+            except Exception:
+                weekly_goal_total = 5
+        now = datetime.utcnow()
+        week_start = now - timedelta(days=7)
+        weekly_goal_completed = QuizAttempt.query.filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None, QuizAttempt.completed_at >= week_start).count()
+        weekly_goal_percent = int((weekly_goal_completed / weekly_goal_total) * 100) if weekly_goal_total > 0 else 0
+        if weekly_goal_percent > 100:
+            weekly_goal_percent = 100
+        weekly_goal_message = "Keep going!" if weekly_goal_percent < 100 else "Goal reached \u2014 great job!"
+    except Exception:
+        weekly_goal_total = 5
+        weekly_goal_completed = 0
+        weekly_goal_percent = 0
+        weekly_goal_message = "Weekly progress unavailable"
+
+    # compute per-subject average percent for this student (strengths/weaknesses)
+    subject_strengths = []
+    try:
+        rows = (
+            db.session.query(
+                Subject.id.label('subject_id'),
+                Subject.name.label('subject_name'),
+                func.avg(QuizAttempt.percent).label('avg_percent'),
+                func.count(QuizAttempt.id).label('attempts_count')
+            )
+            .join(Quiz, Quiz.subject_id == Subject.id)
+            .join(QuizAttempt, QuizAttempt.quiz_id == Quiz.id)
+            .filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None, QuizAttempt.percent != None)
+            .group_by(Subject.id)
+            .order_by(func.avg(QuizAttempt.percent).desc())
+            .all()
+        )
+        for r in rows:
+            subject_strengths.append({
+                'id': r.subject_id,
+                'name': r.subject_name,
+                'avg_percent': round(float(r.avg_percent), 1) if r.avg_percent is not None else 0.0,
+                'attempts': int(r.attempts_count),
+            })
+    except Exception:
+        subject_strengths = []
+
+    return render_template('partials/view_student.html', quizzes=quizzes, daily_goal=dg, daily_completed=dc, quizzes_taken=quizzes_taken, avg_score=avg_score, days_streak=days_streak, current_student_rank=current_student_rank, current_student_avg=current_student_avg, student=student, weekly_goal_total=weekly_goal_total, weekly_goal_completed=weekly_goal_completed, weekly_goal_percent=weekly_goal_percent, weekly_goal_message=weekly_goal_message, subject_strengths=subject_strengths)
+
 @main.route("/teacher/settings")
 def teacher_settings():
     teacher_id = session.get('teacher_id')

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+  </head>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9e9;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .left {
+      width: 20%;
+      background: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .right {
+      height: 100vh;
+      width: 80%;
+      overflow-y: scroll;
+      padding-bottom: 20px;
+    }
+
+    .header {
+      width: 100%;
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: 1fr;
+      grid-column-gap: 0px;
+      grid-row-gap: 0px;
+      padding: 0 10px;
+    }
+
+    .total-quizzes {
+      grid-area: 1 / 1 / 2 / 2;
+    }
+    .active-subjects {
+      grid-area: 1 / 2 / 2 / 3;
+    }
+    .total-students {
+      grid-area: 1 / 3 / 2 / 4;
+    }
+    .avg-score {
+      grid-area: 1 / 4 / 2 / 5;
+    }
+
+    .total-quizzes,
+    .active-subjects,
+    .total-students,
+    .avg-score {
+      background: white;
+      margin: 0 10px;
+      padding: 20px 25px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #e6e6e6;
+    }
+    .stat-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .stat-title {
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .stat-delta {
+      font-size: 0.9rem;
+      color: #10b981; /* green for positive */
+      font-weight: 600;
+    }
+    .stat-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stat-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .stat-icon.blue {
+      background: linear-gradient(180deg, #e8f1ff, #dfeeff);
+      color: #1e3a8a;
+    }
+    .stat-icon.green {
+      background: linear-gradient(180deg, #e9f9f0, #dff3e6);
+      color: #065f46;
+    }
+    .stat-icon.purple {
+      background: linear-gradient(180deg, #f3e9ff, #eadcff);
+      color: #6b21a8;
+    }
+    .stat-icon.orange {
+      background: linear-gradient(180deg, #fff3e6, #ffe7ce);
+      color: #b45309;
+    }
+
+    .section {
+      display: flex;
+      gap: 20px;
+      padding: 0 20px;
+      margin-top: 20px;
+    }
+
+    .section-left,
+    .section-right {
+      border-radius: 12px;
+    }
+
+    .section-left {
+      width: 70%;
+    }
+
+    .section-right {
+      width: 30%;
+    }
+
+    .available-quizzes {
+      width: 100%;
+      background: white;
+      border-radius: 10px;
+      padding: 20px 25px;
+      border: 1px solid #e6e6e6;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .quiz-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid transparent;
+    }
+    .quiz-item.featured {
+      background: linear-gradient(90deg, #ecf9ee, #f6fdf8);
+      border: 1px solid #dff3e6;
+    }
+    .quiz-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .quiz-meta {
+      flex: 1;
+    }
+    .quiz-title {
+      font-weight: 700;
+      color: #111827;
+    }
+    .quiz-desc {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin-top: 6px;
+    }
+    .badge {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #065f46;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+    .btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn.green {
+      background: #10b981;
+      color: #fff;
+    }
+    .btn.blue {
+      background: #2563eb;
+      color: #fff;
+    }
+    .btn.purple {
+      background: linear-gradient(90deg, #7c3aed, #c084fc);
+      color: #fff;
+    }
+
+    .todays-goal {
+      width: 100%;
+      background: linear-gradient(180deg, #2b6ef6, #2563eb);
+      border-radius: 12px;
+      color: #fff;
+      padding: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+    }
+    .todays-goal .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .todays-goal .goal-title {
+      font-weight: 700;
+    }
+    .todays-goal .goal-progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .todays-goal .progress-track {
+      background: rgba(255, 255, 255, 0.18);
+      height: 8px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .todays-goal .progress-fill {
+      height: 100%;
+      background: #fff;
+      border-radius: 8px;
+      width: 66%;
+    }
+    .todays-goal .goal-note {
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .recent-achievements {
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid #e6e6e6;
+      box-shadow: 0 6px 18px rgba(16, 24, 40, 0.03);
+    }
+    .achievement-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .ach-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .ach-icon.gold {
+      background: linear-gradient(180deg, #fff7e6, #fff1d6);
+      color: #b45309;
+    }
+    .ach-icon.green {
+      background: linear-gradient(180deg, #ecfdf5, #dff7ec);
+      color: #059669;
+    }
+    .ach-text .title {
+      font-weight: 700;
+      color: #111827;
+    }
+    .ach-text .subtitle {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+  /* Progress card styles (mirrors student/progress.html) */
+  .result-list { display: flex; flex-direction: column; gap: 12px; }
+  .result-item { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 8px; background: #fff; border: 1px solid transparent; }
+  .result-item.green { background: linear-gradient(90deg,#ecf9ee,#f6fdf8); border:1px solid #dff3e6; }
+  .result-item.blue { background: linear-gradient(90deg,#eef6ff,#f3f8ff); border:1px solid #e6f0ff; }
+  .result-item.yellow { background: linear-gradient(90deg,#fffaf0,#fff7e6); border:1px solid #ffe7ce; }
+  .result-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff; }
+  .result-icon.green { background: #10b981; }
+  .result-icon.blue { background: #2563eb; }
+  .result-icon.yellow { background: #b45309; }
+  .result-meta { flex:1; }
+  .result-title { font-weight:700; color:#111827; }
+  .result-sub { color:#6b7280; font-size:0.9rem; margin-top:4px; }
+  .result-pill { display:inline-block; background:#ecfdf5; color:#065f46; padding:4px 8px; border-radius:8px; font-size:0.75rem; margin-top:8px; }
+  .result-score { text-align:right; min-width:80px; }
+  .result-score .pct { font-weight:700; font-size:1.4rem; color:#059669; }
+  .result-score .label { color:#6b7280; font-size:0.85rem; }
+  .weekly-goal { background: linear-gradient(180deg,#7c3aed,#c084fc); color:#fff; border-radius:12px; padding:18px; margin-bottom:18px; }
+  .weekly-goal .progress { background: rgba(255,255,255,0.2); height:10px; border-radius:8px; overflow:hidden; margin:12px 0; }
+  .weekly-goal .progress > i { display:block; height:100%; background:#fff; width: calc(var(--pct,80) * 1%); }
+  .weekly-goal .meta { display:flex; justify-content:space-between; align-items:center; }
+  .strengths { background:#fff; border-radius:12px; padding:18px; border:1px solid #e6e6e6; }
+  .strength-row { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+  .strength-row .label { color:#111827; font-weight:700; }
+  .strength-row .bar { flex:1; height:8px; background:#f1f5f9; border-radius:8px; margin: 0 12px; overflow:hidden; }
+  .strength-row .bar > i { display:block; height:100%; border-radius:8px; }
+  .strength-row .bar > i { width: calc(var(--pct, 0) * 1%); background: var(--bar-color, #10b981); }
+  </style>
+  <body>
+    <div class="left">
+
+      {% include 'partials/teacher_sidebar.html' %}
+
+    </div>
+    <div class="right">
+      <div class="header">
+        <div class="header-title">
+          <span style="font-size: 1.5rem; font-weight: 700; color: #2d3a2d">{{ student.name if student and student.name else 'Student Name' }} - Progress</span>
+          <span style="font-size: 1rem; color: grey">{{ student.email if student and student.email else '' }}</span>
+        </div>
+        <div class="header-actions">
+        </div>
+      </div>
+      <div class="stats">
+    <div class="total-quizzes">
+          <div class="stat-left">
+            <div class="stat-title">Quizzes Taken</div>
+      <div class="stat-value">{{ quizzes_taken if quizzes_taken is not none else 0 }}</div>
+            <div class="stat-delta">
+              +12%
+              <span style="color: #6b7280; font-weight: 500"
+                >from last month</span
+              >
+            </div>
+          </div>
+          <div class="stat-right">
+            <div class="stat-icon blue">📘</div>
+          </div>
+        </div>
+        <div class="active-subjects">
+          <div class="stat-left">
+            <div class="stat-title">Average Score</div>
+            <div class="stat-value">{% if avg_score is not none %}{{ avg_score }}%{% else %}N/A{% endif %}</div>
+            <div class="stat-delta" style="color: #10b981">
+              {% if avg_score is not none %}
+                {% set improvement = '' %}
+                <span style="color: #6b7280; font-weight: 500">since last month</span>
+              {% else %}
+                <span style="color: #6b7280; font-weight: 500">No scores yet</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="stat-right">
+            <div class="stat-icon green">📈</div>
+          </div>
+        </div>
+        <div class="total-students">
+          <div class="stat-left">
+            <div class="stat-title">Days Streak</div>
+            <div class="stat-value">{{ days_streak if days_streak is not none else 0 }}</div>
+            <div class="stat-delta" style="color: #10b981">
+              Days
+              <span style="color: #6b7280; font-weight: 500">Keep it up!</span>
+            </div>
+          </div>
+          <div class="stat-right">
+            <div class="stat-icon orange">🔥</div>
+          </div>
+        </div>
+        <div class="avg-score">
+          <div class="stat-left">
+            <div class="stat-title">Rank</div>
+            <div class="stat-value">{% if current_student_rank %}#{{ current_student_rank }}{% else %}—{% endif %}</div>
+            <div class="stat-delta" style="color: #10b981">
+              {% if current_student_avg is not none %}Avg {{ current_student_avg }}%{% else %}No score yet{% endif %}
+              <span style="color: #6b7280; font-weight: 500">in class</span>
+            </div>
+          </div>
+          <div class="stat-right">
+            <div class="stat-icon purple">🏅</div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-left">
+          <div class="available-quizzes">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <div style="font-weight: 700; color: #111827">Recent Quiz Results</div>
+                <a style="color: #10b981; text-decoration: none; font-weight: 700" href="#">View All</a>
+                </div>
+              <div class="result-list">
+                {% if quizzes and quizzes|length > 0 %}
+                  {% for a in quizzes %}
+                    {% set q = a.quiz %}
+                    <div class="result-item {{ 'green' if a.percent and a.percent >= 85 else ('blue' if a.percent and a.percent >= 70 else 'yellow') }}">
+                      <div class="result-icon {{ 'green' if a.percent and a.percent >= 85 else ('blue' if a.percent and a.percent >= 70 else 'yellow') }}">{{ loop.index }}</div>
+                      <div class="result-meta">
+                        <div class="result-title">{{ q.title if q else 'Quiz #' ~ a.quiz_id }}</div>
+                        <div class="result-sub">{{ a.completed_at.strftime('%b %d, %Y %H:%M') if a.completed_at else 'In progress' }}</div>
+                        <div class="result-pill">{{ a.score if a.score is not none else '?' }}/{{ q.questions|length if q else '?' }} Correct</div>
+                      </div>
+                      <div class="result-score">
+                        {% if q and q.subject %}
+                          <div style="font-size:0.85rem; color:#6b7280; margin-bottom:6px; text-align:right;">{{ q.subject.name }}</div>
+                        {% endif %}
+                        {% if a.percent is not none %}
+                          {% if a.percent >= 85 %}
+                            <div class="pct" style="color:#059669;">{{ ('%.1f' % a.percent) }}%</div>
+                          {% elif a.percent >= 70 %}
+                            <div class="pct" style="color:#2563eb;">{{ ('%.1f' % a.percent) }}%</div>
+                          {% else %}
+                            <div class="pct" style="color:#b45309;">{{ ('%.1f' % a.percent) }}%</div>
+                          {% endif %}
+                        {% else %}
+                          <div class="pct">—%</div>
+                        {% endif %}
+                        <div class="label">{{ (a.time_taken_seconds ~ 's') if a.time_taken_seconds else '' }}</div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="result-item">
+                    <div class="result-meta">
+                      <div class="result-title">No quiz attempts yet</div>
+                      <div class="result-sub">This student has not attempted any quizzes yet.</div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+          </div>
+        </div>
+        <div class="section-right">
+          <div class="todays-goal">
+            <div class="goal-header">
+              <div class="goal-title">Today's Goal</div>
+              <div style="opacity: 0.9">Daily</div>
+            </div>
+            {# compute safe values and pct #}
+            {% set dg = daily_goal if daily_goal is not none else 1 %}
+            {% set dc = daily_completed if daily_completed is not none else 0 %}
+            {% set dg_safe = dg if dg > 0 else 0 %}
+            {% if dg_safe and dg_safe > 0 %}
+              {% set pct = (dc * 100 / dg_safe)|round(0) if dg_safe > 0 else 0 %}
+            {% else %}
+              {% set pct = 0 %}
+            {% endif %}
+
+            <div class="goal-progress-row">
+              <div style="font-size: 0.95rem">Quizzes Completed</div>
+              <div style="font-weight: 700">{{ dc }} / {{ dg }}</div>
+            </div>
+            <div class="progress-track" data-pct="{{ pct }}">
+              <div class="progress-fill"></div>
+            </div>
+            <div class="goal-note">
+              {% if dg_safe == 0 %}
+                No daily goal set. Set one in Settings to track progress.
+              {% elif dc >= dg %}
+                Daily goal reached — great job!
+              {% else %}
+                {% set remaining = (dg - dc) if dg - dc > 0 else 0 %}
+                {{ remaining }} more quiz{{ 'es' if remaining != 1 else '' }} to reach your daily goal!
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="weekly-goal card">
+            <div class="meta">
+              <div>
+                <div style="font-weight:700;">Weekly Goal</div>
+                <div style="font-size:0.9rem; opacity:0.95;">Progress</div>
+              </div>
+              <div style="font-weight:700;">{{ weekly_goal_completed }} / {{ weekly_goal_total }} Quizzes</div>
+            </div>
+            <div class="progress" style="--pct: {{ weekly_goal_percent }};"><i></i></div>
+            <div style="font-size:0.9rem; opacity:0.9;">{{ weekly_goal_percent }}% complete - {{ weekly_goal_message }}</div>
+          </div>
+
+          <div class="strengths card" style="margin-top:12px;">
+            <h3 style="margin-top:0;margin-bottom: 15px;">Strengths & Weaknesses</h3>
+            {% if subject_strengths and subject_strengths|length > 0 %}
+              {% for s in subject_strengths %}
+                {% set pct = s.avg_percent if s.avg_percent is not none else 0 %}
+                {% set pct_int = pct|int %}
+                {% if pct >= 85 %}
+                  {% set color = '#10b981' %}
+                {% elif pct >= 70 %}
+                  {% set color = '#2563eb' %}
+                {% elif pct >= 50 %}
+                  {% set color = '#f59e0b' %}
+                {% else %}
+                  {% set color = '#ef4444' %}
+                {% endif %}
+                <div class="strength-row">
+                  <div class="label">{{ s.name }}</div>
+                  <div class="bar" style="--pct: {{ pct_int }}; --bar-color: {{ color }};"><i></i></div>
+                  <div style="min-width:36px; text-align:right;">{{ '%.1f'|format(pct) }}%</div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div style="color:#6b7280;">No subject data yet. Take quizzes across subjects to see your strengths here.</div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // fill any progress-track elements (today's goal)
+      document.querySelectorAll('.progress-track').forEach(function(el) {
+        var pct = el.getAttribute('data-pct') || 0;
+        var fill = el.querySelector('.progress-fill');
+        if (fill) fill.style.width = pct + '%';
+      });
+
+      // fill weekly goal progress bars
+      document.querySelectorAll('.weekly-goal .progress').forEach(function(el) {
+        var pct = getComputedStyle(el).getPropertyValue('--pct') || el.getAttribute('data-pct') || 0;
+        var fill = el.querySelector('i');
+        if (fill) {
+          // ensure numeric
+          var n = parseInt(String(pct).trim(), 10) || 0;
+          if (n > 100) n = 100;
+          fill.style.width = n + '%';
+        }
+      });
+
+      // fill detailed goal bars
+      document.querySelectorAll('.goal-bar').forEach(function(el) {
+        var pct = el.getAttribute('data-pct') || 0;
+        var fill = el.querySelector('.goal-bar-fill');
+        if (fill) fill.style.width = pct + '%';
+      });
+    });
+  </script>
+</html>

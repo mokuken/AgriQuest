@@ -363,7 +363,7 @@
                       <td style="padding: 12px 8px; vertical-align: middle;">{{ s.total_taken }}</td>
                       <td style="padding: 12px 8px; vertical-align: middle;">{% if s.avg_percent is not none %}{{ s.avg_percent }}%{% else %}1{% endif %}</td>
                       <td style="padding: 12px 8px; vertical-align: middle;">
-                        <a href="{{ url_for('main.student_settings') }}?student_id={{ s.id }}" style="color: #2563eb; font-weight: 700; text-decoration: none; margin-right: 12px;">View</a>
+                        <a href="{{ url_for('main.teacher_view_student', student_id=s.id) }}" style="color: #2563eb; font-weight: 700; text-decoration: none; margin-right: 12px;">View</a>
                         <a href="#" style="color: #10b981; font-weight: 700; text-decoration: none;">Message</a>
                       </td>
                     </tr>
