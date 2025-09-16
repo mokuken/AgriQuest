@@ -1129,7 +1129,33 @@ def teacher_analytics():
     except Exception:
         trend_subjects = []
 
-    return render_template("teacher/analytics.html", trend_points=points_str, trend_circles=circles, trend_labels=labels, trend_subjects=trend_subjects)
+    # compute per-quiz average percent (all students) for quiz performance card
+    try:
+        quiz_rows = (
+            db.session.query(
+                Quiz.id.label('quiz_id'),
+                Quiz.title.label('quiz_title'),
+                func.avg(QuizAttempt.percent).label('avg_percent'),
+                func.count(QuizAttempt.id).label('attempts_count')
+            )
+            .join(QuizAttempt, QuizAttempt.quiz_id == Quiz.id)
+            .filter(QuizAttempt.completed_at != None, QuizAttempt.percent != None)
+            .group_by(Quiz.id)
+            .order_by(func.avg(QuizAttempt.percent).desc())
+            .limit(6)
+            .all()
+        )
+        trend_quizzes = []
+        for q in quiz_rows:
+            try:
+                avgq = round(float(q.avg_percent), 1) if q.avg_percent is not None else None
+            except Exception:
+                avgq = None
+            trend_quizzes.append({'id': q.quiz_id, 'title': q.quiz_title, 'avg_percent': avgq, 'attempts': int(q.attempts_count)})
+    except Exception:
+        trend_quizzes = []
+
+    return render_template("teacher/analytics.html", trend_points=points_str, trend_circles=circles, trend_labels=labels, trend_subjects=trend_subjects, trend_quizzes=trend_quizzes)
 
 @main.route("/teacher/settings")
 def teacher_settings():
