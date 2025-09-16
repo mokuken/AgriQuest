@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, flash
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, flash, send_file, Response
+import io, csv
 from datetime import datetime, timedelta
 
 from sqlalchemy import func
@@ -503,6 +504,124 @@ def teacher_students():
             students = []
 
     return render_template("teacher/students.html", students=students)
+
+
+@main.route('/teacher/students/export')
+def teacher_export_students():
+    """Export the students list in TXT, CSV (Excel) or PDF format.
+    Usage: /teacher/students/export?format=csv|txt|pdf
+    """
+    fmt = (request.args.get('format') or 'csv').lower()
+
+    # build students list (same as teacher_students)
+    try:
+        rows = (
+            db.session.query(
+                Student.id.label('id'),
+                Student.name.label('name'),
+                Student.email.label('email'),
+                func.count(QuizAttempt.id).label('total_taken'),
+                func.avg(QuizAttempt.percent).label('avg_percent')
+            )
+            .outerjoin(QuizAttempt, QuizAttempt.student_id == Student.id)
+            .group_by(Student.id)
+            .order_by(Student.name.asc())
+            .all()
+        )
+
+        students = []
+        for r in rows:
+            avg = None
+            try:
+                if r.avg_percent is not None:
+                    avg = round(float(r.avg_percent), 1)
+            except Exception:
+                avg = None
+
+            students.append({
+                'id': r.id,
+                'name': r.name,
+                'email': r.email,
+                'total_taken': int(r.total_taken or 0),
+                'avg_percent': avg,
+            })
+    except Exception:
+        # fallback to simple list
+        students = []
+        try:
+            for s in Student.query.order_by(Student.name.asc()).all():
+                students.append({'id': s.id, 'name': s.name, 'email': s.email, 'total_taken': 0, 'avg_percent': None})
+        except Exception:
+            students = []
+
+    # TXT output
+    if fmt == 'txt':
+        out = io.StringIO()
+        out.write('Name\tEmail\tQuizzes Taken\tAvg Score\n')
+        for s in students:
+            avg = '' if s.get('avg_percent') is None else f"{s.get('avg_percent')}%"
+            out.write(f"{s.get('name')}\t{s.get('email')}\t{s.get('total_taken')}\t{avg}\n")
+        bio = io.BytesIO()
+        bio.write(out.getvalue().encode('utf-8'))
+        bio.seek(0)
+        return send_file(bio, as_attachment=True, download_name='students.txt', mimetype='text/plain')
+
+    # CSV (Excel-friendly)
+    if fmt == 'csv' or fmt == 'excel':
+        out = io.StringIO()
+        writer = csv.writer(out)
+        writer.writerow(['Name', 'Email', 'Quizzes Taken', 'Avg Score'])
+        for s in students:
+            avg = '' if s.get('avg_percent') is None else str(s.get('avg_percent'))
+            writer.writerow([s.get('name'), s.get('email'), s.get('total_taken'), avg])
+        bio = io.BytesIO()
+        bio.write(out.getvalue().encode('utf-8-sig'))
+        bio.seek(0)
+        return send_file(bio, as_attachment=True, download_name='students.csv', mimetype='text/csv')
+
+    # PDF (optional dependency: reportlab)
+    if fmt == 'pdf':
+        try:
+            from reportlab.pdfgen import canvas
+            from reportlab.lib.pagesizes import letter
+        except Exception:
+            flash('PDF export requires the reportlab package to be installed.', 'error')
+            return redirect(url_for('main.teacher_students'))
+
+        bio = io.BytesIO()
+        c = canvas.Canvas(bio, pagesize=letter)
+        width, height = letter
+        x = 40
+        y = height - 40
+        c.setFont('Helvetica-Bold', 14)
+        c.drawString(x, y, 'Students')
+        y -= 24
+        c.setFont('Helvetica', 10)
+        c.drawString(x, y, 'Name')
+        c.drawString(x+220, y, 'Email')
+        c.drawString(x+420, y, 'Taken')
+        c.drawString(x+480, y, 'Avg')
+        y -= 14
+        c.line(x, y, width-40, y)
+        y -= 14
+        for s in students:
+            if y < 60:
+                c.showPage()
+                y = height - 40
+            avg = '' if s.get('avg_percent') is None else f"{s.get('avg_percent')}%"
+            c.drawString(x, y, str(s.get('name') or ''))
+            c.drawString(x+220, y, str(s.get('email') or ''))
+            c.drawString(x+420, y, str(s.get('total_taken') or ''))
+            c.drawString(x+480, y, avg)
+            y -= 16
+
+        c.save()
+        bio.seek(0)
+        return send_file(bio, as_attachment=True, download_name='students.pdf', mimetype='application/pdf')
+
+    # unknown format -> redirect back
+    flash('Unknown export format.', 'error')
+    return redirect(url_for('main.teacher_students'))
 
 
 @main.route('/teacher/student/<int:student_id>')
