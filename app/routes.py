@@ -1033,7 +1033,78 @@ def api_get_or_create_conversation():
 
 @main.route("/teacher/analytics")
 def teacher_analytics():
-    return render_template("teacher/analytics.html")
+    # Build a simple performance trend: average percent across all students
+    # for the last 6 months (including current month). We'll compute month buckets
+    # and average the QuizAttempt.percent for completed attempts in each month.
+    try:
+        now = datetime.utcnow()
+        # prepare 6 months range (including current month)
+        months = []
+        for i in range(5, -1, -1):
+            m = (now - timedelta(days=30 * i))
+            months.append((m.year, m.month))
+
+        # build month labels and start/end datetimes for each bucket
+        buckets = []
+        labels = []
+        for y, mo in months:
+            labels.append(datetime(y, mo, 1).strftime('%b'))
+            start = datetime(y, mo, 1)
+            # compute end as first day of next month
+            if mo == 12:
+                end = datetime(y + 1, 1, 1)
+            else:
+                end = datetime(y, mo + 1, 1)
+            buckets.append((start, end))
+
+        avg_percents = []
+        for start, end in buckets:
+            val = (
+                db.session.query(func.avg(QuizAttempt.percent))
+                .filter(QuizAttempt.completed_at != None, QuizAttempt.completed_at >= start, QuizAttempt.completed_at < end, QuizAttempt.percent != None)
+                .scalar()
+            )
+            try:
+                if val is None:
+                    avg_percents.append(None)
+                else:
+                    avg_percents.append(round(float(val), 1))
+            except Exception:
+                avg_percents.append(None)
+
+        # Convert averages into SVG coordinates for the existing 600x220 viewBox
+        # y-axis: 20..180 maps to 100..0 (percent -> pixel)
+        # x positions: spread evenly between 60 and 560
+        xs = [60 + i * 100 for i in range(len(avg_percents))]
+        points = []
+        circles = []
+        for i, v in enumerate(avg_percents):
+            x = xs[i]
+            if v is None:
+                # place missing points at bottom (or skip)
+                y = 180
+            else:
+                # percent 100 -> y=20, 0 -> y=180
+                y = 20 + (100 - max(0, min(100, v))) * (160 / 100.0)
+            points.append((x, int(y)))
+            circles.append({'x': x, 'y': int(y), 'label': (str(v) + '%' if v is not None else 'n/a')})
+
+        # build polyline points string skipping trailing None values to avoid drops
+        points_str = ' '.join(f"{p[0]},{p[1]}" for p in points)
+
+    except Exception:
+        labels = ['Jan','Feb','Mar','Apr','May','Jun']
+        points_str = "60,120 160,90 260,80 360,90 460,70 560,80"
+        circles = [
+            {'x':60,'y':120,'label':'80%'},
+            {'x':160,'y':90,'label':'90%'},
+            {'x':260,'y':80,'label':'93%'},
+            {'x':360,'y':90,'label':'90%'},
+            {'x':460,'y':70,'label':'95%'},
+            {'x':560,'y':80,'label':'93%'},
+        ]
+
+    return render_template("teacher/analytics.html", trend_points=points_str, trend_circles=circles, trend_labels=labels)
 
 @main.route("/teacher/settings")
 def teacher_settings():

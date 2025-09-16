@@ -150,25 +150,26 @@
                   <text x="10" y="144">25</text>
                   <text x="10" y="184">0</text>
                 </g>
-                <!-- sample data polyline -->
-                <polyline points="60,120 160,90 260,80 360,90 460,70 560,80" fill="none" stroke="#10b981" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+                <!-- dynamic data polyline -->
+                {% if trend_points %}
+                <polyline points="{{ trend_points }}" fill="none" stroke="#10b981" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+                {% endif %}
                 <!-- data points -->
                 <g class="points" fill="#10b981" stroke="#fff" stroke-width="2">
-                  <circle cx="60" cy="120" r="5" />
-                  <circle cx="160" cy="90" r="5" />
-                  <circle cx="260" cy="80" r="5" />
-                  <circle cx="360" cy="90" r="5" />
-                  <circle cx="460" cy="70" r="5" />
-                  <circle cx="560" cy="80" r="5" />
+                  {% if trend_circles %}
+                    {% for c in trend_circles %}
+                      <circle cx="{{ c.x }}" cy="{{ c.y }}" r="5" />
+                    {% endfor %}
+                  {% endif %}
                 </g>
                 <!-- x-axis labels -->
                 <g class="xlabels" fill="#374151" font-size="12">
-                  <text x="60" y="205">Jan</text>
-                  <text x="160" y="205">Feb</text>
-                  <text x="260" y="205">Mar</text>
-                  <text x="360" y="205">Apr</text>
-                  <text x="460" y="205">May</text>
-                  <text x="560" y="205">Jun</text>
+                  {% if trend_labels %}
+                    {% for label in trend_labels %}
+                      {% set x = 60 + (loop.index0 * 100) %}
+                      <text x="{{ x }}" y="205">{{ label }}</text>
+                    {% endfor %}
+                  {% endif %}
                 </g>
               </svg>
             </div>
