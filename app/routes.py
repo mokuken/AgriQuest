@@ -1036,6 +1036,7 @@ def teacher_analytics():
     # Build a simple performance trend: average percent across all students
     # for the last 6 months (including current month). We'll compute month buckets
     # and average the QuizAttempt.percent for completed attempts in each month.
+    trend_subjects = []  # Placeholder for future subject trends
     try:
         now = datetime.utcnow()
         # prepare 6 months range (including current month)
@@ -1103,8 +1104,32 @@ def teacher_analytics():
             {'x':460,'y':70,'label':'95%'},
             {'x':560,'y':80,'label':'93%'},
         ]
+    # compute per-subject average percent (all students) for subject performance card
+    try:
+        subj_rows = (
+            db.session.query(
+                Subject.name.label('subject_name'),
+                func.avg(QuizAttempt.percent).label('avg_percent'),
+                func.count(QuizAttempt.id).label('attempts_count')
+            )
+            .join(Quiz, Quiz.subject_id == Subject.id)
+            .join(QuizAttempt, QuizAttempt.quiz_id == Quiz.id)
+            .filter(QuizAttempt.completed_at != None, QuizAttempt.percent != None)
+            .group_by(Subject.id)
+            .order_by(func.avg(QuizAttempt.percent).desc())
+            .all()
+        )
+        trend_subjects = []
+        for r in subj_rows:
+            try:
+                avg = round(float(r.avg_percent), 1) if r.avg_percent is not None else None
+            except Exception:
+                avg = None
+            trend_subjects.append({'name': r.subject_name, 'avg_percent': avg, 'attempts': int(r.attempts_count)})
+    except Exception:
+        trend_subjects = []
 
-    return render_template("teacher/analytics.html", trend_points=points_str, trend_circles=circles, trend_labels=labels)
+    return render_template("teacher/analytics.html", trend_points=points_str, trend_circles=circles, trend_labels=labels, trend_subjects=trend_subjects)
 
 @main.route("/teacher/settings")
 def teacher_settings():

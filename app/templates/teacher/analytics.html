@@ -182,26 +182,38 @@
             <div class="card-body">
               <!-- simple CSS-only bar chart using inline bars -->
               <div class="bars" role="img" aria-label="Average score by subject">
-                <div class="bar-row">
-                  <div class="bar-label">Agriculture</div>
-                  <div class="bar-wrap"><div class="bar" style="--value:80%"></div></div>
-                  <div class="bar-value">80%</div>
-                </div>
-                <div class="bar-row">
-                  <div class="bar-label">Biology</div>
-                  <div class="bar-wrap"><div class="bar" style="--value:74%"></div></div>
-                  <div class="bar-value">74%</div>
-                </div>
-                <div class="bar-row">
-                  <div class="bar-label">Chemistry</div>
-                  <div class="bar-wrap"><div class="bar" style="--value:66%"></div></div>
-                  <div class="bar-value">66%</div>
-                </div>
-                <div class="bar-row">
-                  <div class="bar-label">Physics</div>
-                  <div class="bar-wrap"><div class="bar" style="--value:70%"></div></div>
-                  <div class="bar-value">70%</div>
-                </div>
+                {% if trend_subjects and trend_subjects|length > 0 %}
+                  {% for s in trend_subjects %}
+                    {% set pct = (s.avg_percent if s.avg_percent is not none else 0) %}
+                    <div class="bar-row">
+                      <div class="bar-label">{{ s.name }}</div>
+                      <div class="bar-wrap"><div class="bar" data-pct="{{ pct }}"></div></div>
+                      <div class="bar-value">{% if s.avg_percent is not none %}{{ s.avg_percent }}%{% else %}n/a{% endif %}</div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <!-- fallback static bars if no subject data available -->
+                  <div class="bar-row">
+                    <div class="bar-label">Agriculture</div>
+                      <div class="bar-wrap"><div class="bar" data-pct="80"></div></div>
+                    <div class="bar-value">80%</div>
+                  </div>
+                  <div class="bar-row">
+                    <div class="bar-label">Biology</div>
+                      <div class="bar-wrap"><div class="bar" data-pct="74"></div></div>
+                    <div class="bar-value">74%</div>
+                  </div>
+                  <div class="bar-row">
+                    <div class="bar-label">Chemistry</div>
+                      <div class="bar-wrap"><div class="bar" data-pct="66"></div></div>
+                    <div class="bar-value">66%</div>
+                  </div>
+                  <div class="bar-row">
+                    <div class="bar-label">Physics</div>
+                      <div class="bar-wrap"><div class="bar" data-pct="70"></div></div>
+                    <div class="bar-value">70%</div>
+                  </div>
+                {% endif %}
               </div>
             </div>
           </article>
@@ -210,4 +222,18 @@
       </div>
     </div>
   </body>
+  <script>
+    // set bar widths from data-pct to avoid inline CSS with Jinja inside style attributes
+    (function(){
+      try{
+        document.querySelectorAll('.bar[data-pct]').forEach(function(el){
+          var v = el.getAttribute('data-pct') || '0';
+          var n = parseFloat(v);
+          if(isNaN(n)) n = 0;
+          if(n < 0) n = 0; if(n > 100) n = 100;
+          el.style.width = n + '%';
+        });
+      }catch(e){ /* fail silently */ }
+    })();
+  </script>
 </html>
