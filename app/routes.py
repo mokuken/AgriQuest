@@ -1031,6 +1031,10 @@ def api_get_or_create_conversation():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@main.route("/teacher/analytics")
+def teacher_analytics():
+    return render_template("teacher/analytics.html")
+
 @main.route("/teacher/settings")
 def teacher_settings():
     teacher_id = session.get('teacher_id')
