@@ -638,6 +638,91 @@ def student_progress():
         weekly_goal_message=weekly_message,
     )
 
+@main.route("/student/ranking")
+def student_ranking():
+    # compute average percent score per student across completed attempts
+    # and sort highest to lowest. Also determine the logged-in student's rank.
+    student_id = session.get('student_id')
+
+    # Build a query that returns student id, name, average percent and count of attempts
+    try:
+        # join Student and QuizAttempt, aggregate by student
+        averages = (
+            db.session.query(
+                Student.id.label('student_id'),
+                Student.name.label('name'),
+                func.avg(QuizAttempt.percent).label('avg_percent'),
+                func.count(QuizAttempt.id).label('attempts_count'),
+            )
+            .join(QuizAttempt, QuizAttempt.student_id == Student.id)
+            .filter(QuizAttempt.completed_at != None, QuizAttempt.percent != None)
+            .group_by(Student.id)
+            .order_by(func.avg(QuizAttempt.percent).desc())
+            .all()
+        )
+
+        # Convert to list of dicts and assign rank numbers (1-based). Handle ties by dense ranking.
+        ranked = []
+        last_score = None
+        current_rank = 0
+        dense_rank = 0
+        for row in averages:
+            avg = float(row.avg_percent) if row.avg_percent is not None else 0.0
+            # increment dense rank when score differs
+            if last_score is None or avg != last_score:
+                dense_rank = dense_rank + 1
+            last_score = avg
+            ranked.append({
+                'rank': dense_rank,
+                'student_id': row.student_id,
+                'name': row.name,
+                'avg_percent': round(avg, 1),
+                'attempts_count': int(row.attempts_count),
+            })
+
+        # find current student's rank if logged in
+        current_student_rank = None
+        current_student_avg = None
+        if student_id:
+            for s in ranked:
+                if s['student_id'] == student_id:
+                    current_student_rank = s['rank']
+                    current_student_avg = s['avg_percent']
+                    break
+
+    except Exception:
+        ranked = []
+        current_student_rank = None
+        current_student_avg = None
+
+    # Try to fetch current student's name and total completed attempts for display
+    current_student_name = None
+    current_student_attempts = 0
+    try:
+        if student_id:
+            s = Student.query.filter_by(id=student_id).first()
+            if s:
+                current_student_name = s.name
+                current_student_attempts = (
+                    QuizAttempt.query.filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None).count()
+                )
+    except Exception:
+        current_student_name = current_student_name
+        current_student_attempts = current_student_attempts
+
+    # pass top 5 and full ranked list to template
+    top_students = ranked[:5]
+    return render_template(
+        "student/ranking.html",
+        top_students=top_students,
+        ranked_students=ranked,
+        current_student_rank=current_student_rank,
+        current_student_avg=current_student_avg,
+        current_student_id=student_id,
+        current_student_name=current_student_name,
+        current_student_attempts=current_student_attempts,
+    )
+
 # Student settings (mirror teacher settings)
 @main.route("/student/settings")
 def student_settings():

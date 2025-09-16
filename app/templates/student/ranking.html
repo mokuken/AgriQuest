@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+  </head>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9e9;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .left {
+      width: 20%;
+      background: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .right {
+      height: 100vh;
+      width: 80%;
+      overflow-y: scroll;
+      padding-bottom: 20px;
+    }
+
+    .header {
+      width: 100%;
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: 1fr;
+      grid-column-gap: 0px;
+      grid-row-gap: 0px;
+      padding: 0 10px;
+    }
+
+    .total-quizzes {
+      grid-area: 1 / 1 / 2 / 2;
+    }
+    .active-subjects {
+      grid-area: 1 / 2 / 2 / 3;
+    }
+    .total-students {
+      grid-area: 1 / 3 / 2 / 4;
+    }
+    .avg-score {
+      grid-area: 1 / 4 / 2 / 5;
+    }
+
+    .total-quizzes,
+    .active-subjects,
+    .total-students,
+    .avg-score {
+      background: white;
+      margin: 0 10px;
+      padding: 20px 25px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #e6e6e6;
+    }
+    .stat-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .stat-title {
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .stat-delta {
+      font-size: 0.9rem;
+      color: #10b981; /* green for positive */
+      font-weight: 600;
+    }
+    .stat-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stat-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .stat-icon.blue {
+      background: linear-gradient(180deg, #e8f1ff, #dfeeff);
+      color: #1e3a8a;
+    }
+    .stat-icon.green {
+      background: linear-gradient(180deg, #e9f9f0, #dff3e6);
+      color: #065f46;
+    }
+    .stat-icon.purple {
+      background: linear-gradient(180deg, #f3e9ff, #eadcff);
+      color: #6b21a8;
+    }
+    .stat-icon.orange {
+      background: linear-gradient(180deg, #fff3e6, #ffe7ce);
+      color: #b45309;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 0 20px;
+      margin-top: 20px;
+    }
+
+    .section-left,
+    .section-right {
+      border-radius: 12px;
+    }
+
+    .section-left {
+      width: 70%;
+    }
+
+    .section-right {
+      width: 30%;
+    }
+
+    .available-quizzes {
+      width: 100%;
+      background: white;
+      border-radius: 10px;
+      padding: 20px 25px;
+      border: 1px solid #e6e6e6;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .quiz-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid transparent;
+    }
+    .quiz-item.featured {
+      background: linear-gradient(90deg, #ecf9ee, #f6fdf8);
+      border: 1px solid #dff3e6;
+    }
+    .quiz-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .quiz-meta {
+      flex: 1;
+    }
+    .quiz-title {
+      font-weight: 700;
+      color: #111827;
+    }
+    .quiz-desc {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin-top: 6px;
+    }
+    .badge {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #065f46;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+    .btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn.green {
+      background: #10b981;
+      color: #fff;
+    }
+    .btn.blue {
+      background: #2563eb;
+      color: #fff;
+    }
+    .btn.purple {
+      background: linear-gradient(90deg, #7c3aed, #c084fc);
+      color: #fff;
+    }
+
+    .todays-goal {
+      width: 100%;
+      background: linear-gradient(180deg, #2b6ef6, #2563eb);
+      border-radius: 12px;
+      color: #fff;
+      padding: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+    }
+    .todays-goal .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .todays-goal .goal-title {
+      font-weight: 700;
+    }
+    .todays-goal .goal-progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .todays-goal .progress-track {
+      background: rgba(255, 255, 255, 0.18);
+      height: 8px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .todays-goal .progress-fill {
+      height: 100%;
+      background: #fff;
+      border-radius: 8px;
+      width: 66%;
+    }
+    .todays-goal .goal-note {
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .recent-achievements {
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid #e6e6e6;
+      box-shadow: 0 6px 18px rgba(16, 24, 40, 0.03);
+    }
+    .achievement-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .ach-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .ach-icon.gold {
+      background: linear-gradient(180deg, #fff7e6, #fff1d6);
+      color: #b45309;
+    }
+    .ach-icon.green {
+      background: linear-gradient(180deg, #ecfdf5, #dff7ec);
+      color: #059669;
+    }
+    .ach-text .title {
+      font-weight: 700;
+      color: #111827;
+    }
+    .ach-text .subtitle {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+  /* Top students badge colors */
+  .rank-badge.rank-1 { background: #ffe7ce; color: #b45309; }
+  .rank-badge.rank-2 { background: #eadcff; color: #6b21a8; }
+  .rank-badge.rank-3 { background: #dff3e6; color: #065f46; }
+  .rank-badge.rank-4 { background: #e9f9f0; color: #15803d; }
+  .rank-badge.rank-5 { background: #e6f0ff; color: #2563eb; }
+  .student-card.top-1 { background: linear-gradient(90deg, #fff8ef, #fff7f0); }
+  .student-card.top-2 { background: linear-gradient(90deg, #f8f3ff, #f6f0ff); }
+  .student-card.top-3 { background: linear-gradient(90deg, #f2fdf7, #f6fdf8); }
+  .student-card.top-4 { background: linear-gradient(90deg, #f6fff9, #f6fff9); }
+  .student-card.top-5 { background: linear-gradient(90deg, #f6f8ff, #f6f8ff); }
+  </style>
+  <body>
+    <div class="left">
+
+      {% include 'partials/student_sidebar.html' %}
+
+    </div>
+    <div class="right">
+      <div class="header">
+        <div class="header-title">
+          <span style="font-size: 1.5rem; font-weight: 700; color: #2d3a2d"
+            >Top Students</span
+          >
+          <span style="font-size: 1rem; color: grey"
+            >Welcome back! Here's an overview of your subjects today.</span
+          >
+        </div>
+      </div>
+      <div class="section" style="width: 100%;">
+        <div class="available-quizzes">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-weight: 700; color: #111827;">Your Rank</h3>
+          </div>
+          {% if current_student_id and current_student_rank is not none %}
+            <div style="background: #fff7f0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: #ffe7ce; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #b45309; font-weight:700;">
+                <span style="font-size: 1.2rem; font-weight: bold;">{{ current_student_rank }}</span>
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; color: #111827;">{{ current_student_name or 'You' }}</div>
+                <div style="color: #6b7280; font-size: 0.95rem;">Score: {{ current_student_avg if current_student_avg is not none else '—' }}%</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-weight: 600; color: #111827;">Attempts: {{ current_student_attempts }}</div>
+              </div>
+            </div>
+          {% else %}
+            <div style="color:#6b7280; margin-top:10px;">Your ranking is not available yet. Take a quiz to appear in the leaderboard.</div>
+          {% endif %}
+        </div>
+        <div class="available-quizzes" style="width: 100%;">
+          <h3 style="font-weight: 700; color: #111827;">Top 5 Students</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <input id="student-search" type="text" placeholder="Find student..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 1rem; width: 220px;" />
+            <a href="#all" style="color: #10b981; text-decoration: none; font-weight: 700">View All</a>
+          </div>
+          {% if top_students %}
+            {% for s in top_students %}
+              {% set top_class = ' top-' ~ s.rank if s.rank and s.rank <= 5 else '' %}
+              <div class="student-card{{ top_class }}{% if current_student_rank and current_student_rank == s.rank %} highlighted{% endif %}" style="border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+                <div class="rank-badge rank-{{ s.rank if s.rank <= 5 else 'other' }}" style="width: 44px; height: 44px; border-radius: 10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:700;">
+                  <span>{{ s.rank }}</span>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-weight:700; color:#111827;">{{ s.name }}</div>
+                  <div style="color:#6b7280; font-size:0.95rem;">Score: {{ s.avg_percent }}%</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-weight:600; color:#111827;">Attempts: {{ s.attempts_count }}</div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div style="color:#6b7280; margin-top:10px;">No student attempts yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -137,6 +137,11 @@
       >Progress</a
     >
     <a
+      href="{{ url_for('main.student_ranking') }}"
+      class="{% if request.endpoint == 'main.student_ranking' %}active{% endif %}"
+      >Ranking</a
+    >
+    <a
       href="{{ url_for('main.student_settings') }}"
       class="{% if request.endpoint == 'main.student_settings' %}active{% endif %}"
       >Settings</a
