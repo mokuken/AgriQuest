@@ -335,30 +335,6 @@
           >
         </div>
         <div class="header-actions">
-          <button
-            style="
-              padding: 10px 15px;
-              border: none;
-              border-radius: 6px;
-              background-color: #4e4e4e;
-              color: white;
-              font-weight: 600;
-            "
-          >
-            Dark
-          </button>
-          <button
-            style="
-              padding: 10px 15px;
-              border: none;
-              border-radius: 6px;
-              background-color: #4caf50;
-              color: white;
-              font-weight: 600;
-            "
-          >
-            Start Quiz
-          </button>
         </div>
       </div>
       <div class="stats">
@@ -451,16 +427,20 @@
                       {{ quiz.questions|length }} questions • {{ quiz.time_limit }} min
                     </div>
                     <div style="color: #6b7280; font-size: 0.9rem; margin-top: 6px">
-                      {% if quiz.teacher_id and quiz.teacher %}By {{ quiz.teacher.name }}{% else %}By Unknown{% endif %}
+                      {% if quiz.teacher_id and quiz.teacher %}By {{ quiz.teacher.name}}{% else %}By Unknown{% endif %}
                     </div>
                   </div>
                   <div>
-                    <button class="btn green">Start Quiz</button>
+                    <a href="{{ url_for('main.student_take_quiz', quiz_id=quiz.id) }}" style="text-decoration: none;">
+                      <button class="btn green" type="button">Take Quiz</button>
+                    </a>
                   </div>
                 </div>
               {% endfor %}
             {% else %}
-              <div style="color: #6b7280;">No available quizzes at the moment.</div>
+              <div>
+                <a href="{{ url_for('main.student_quizzes') }}" style="color: #6b7280; text-decoration: none; font-weight: 700">No available quizzes at the moment. View all quizzes</a>
+              </div>
             {% endif %}
           </div>
         </div>
