@@ -774,6 +774,112 @@ def teacher_view_student(student_id):
 
     return render_template('partials/view_student.html', quizzes=quizzes, daily_goal=dg, daily_completed=dc, quizzes_taken=quizzes_taken, avg_score=avg_score, days_streak=days_streak, current_student_rank=current_student_rank, current_student_avg=current_student_avg, student=student, weekly_goal_total=weekly_goal_total, weekly_goal_completed=weekly_goal_completed, weekly_goal_percent=weekly_goal_percent, weekly_goal_message=weekly_goal_message, subject_strengths=subject_strengths)
 
+
+@main.route('/teacher/student/<int:student_id>/export')
+def teacher_export_student_attempts(student_id):
+    """Export a single student's recent quiz attempts in csv, txt or docx formats.
+    Usage: /teacher/student/<id>/export?format=csv|txt|docx
+    """
+    fmt = (request.args.get('format') or 'csv').lower()
+
+    # load student and their recent attempts
+    student = Student.query.filter_by(id=student_id).first()
+    if not student:
+        flash('Student not found.', 'error')
+        return redirect(url_for('main.teacher_students'))
+
+    attempts = (
+        QuizAttempt.query.filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None)
+        .order_by(QuizAttempt.completed_at.desc())
+        .limit(50)
+        .all()
+    )
+
+    # prepare rows
+    rows = []
+    for a in attempts:
+        q = a.quiz
+        title = q.title if q else f'Quiz #{a.quiz_id}'
+        subject = q.subject.name if q and q.subject else ''
+        completed = a.completed_at.strftime('%Y-%m-%d %H:%M:%S') if a.completed_at else ''
+        score = a.score if a.score is not None else ''
+        percent = ('%.1f' % a.percent) if a.percent is not None else ''
+        time_taken = f"{int(a.time_taken_seconds // 60):02d}:{int(a.time_taken_seconds % 60):02d}" if a.time_taken_seconds else ''
+        rows.append([title, subject, completed, score, percent, time_taken])
+
+    # TXT
+    if fmt == 'txt':
+        out = io.StringIO()
+        out.write('Title\tSubject\tCompleted At\tScore\tPercent\tTime\n')
+        for r in rows:
+            out.write('\t'.join([str(x) for x in r]) + '\n')
+        bio = io.BytesIO()
+        bio.write(out.getvalue().encode('utf-8'))
+        bio.seek(0)
+        filename = f"{(student.name or 'student').replace(' ', '_')}_attempts.txt"
+        return send_file(bio, as_attachment=True, download_name=filename, mimetype='text/plain')
+
+    # CSV (Excel friendly)
+    if fmt == 'csv':
+        out = io.StringIO()
+        writer = csv.writer(out)
+        writer.writerow(['Title', 'Subject', 'Completed At', 'Score', 'Percent', 'Time'])
+        for r in rows:
+            writer.writerow(r)
+        bio = io.BytesIO()
+        bio.write(out.getvalue().encode('utf-8-sig'))
+        bio.seek(0)
+        filename = f"{(student.name or 'student').replace(' ', '_')}_attempts.csv"
+        return send_file(bio, as_attachment=True, download_name=filename, mimetype='text/csv')
+
+    # DOCX (Word) - optional dependency: python-docx
+    if fmt == 'docx':
+        # Prefer python-docx for a proper .docx when available
+        try:
+            from docx import Document
+            has_docx = True
+        except Exception:
+            has_docx = False
+
+        if has_docx:
+            doc = Document()
+            doc.add_heading(f"Quiz Attempts - {student.name}", level=1)
+            table = doc.add_table(rows=1, cols=6)
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = 'Title'
+            hdr_cells[1].text = 'Subject'
+            hdr_cells[2].text = 'Completed At'
+            hdr_cells[3].text = 'Score'
+            hdr_cells[4].text = 'Percent'
+            hdr_cells[5].text = 'Time'
+            for r in rows:
+                row_cells = table.add_row().cells
+                for i, val in enumerate(r):
+                    row_cells[i].text = str(val or '')
+
+            bio = io.BytesIO()
+            doc.save(bio)
+            bio.seek(0)
+            filename = f"{(student.name or 'student').replace(' ', '_')}_attempts.docx"
+            return send_file(bio, as_attachment=True, download_name=filename, mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+
+        # Fallback: return a simple HTML document with .doc extension — Word can open this
+        html = ['<html><head><meta charset="utf-8" /><title>Quiz Attempts</title></head><body>']
+        html.append(f'<h1>Quiz Attempts - {student.name}</h1>')
+        html.append('<table border="1" cellspacing="0" cellpadding="4">')
+        html.append('<tr><th>Title</th><th>Subject</th><th>Completed At</th><th>Score</th><th>Percent</th><th>Time</th></tr>')
+        for r in rows:
+            html.append('<tr>' + ''.join(f'<td>{(x or "")}</td>' for x in r) + '</tr>')
+        html.append('</table></body></html>')
+        bio = io.BytesIO()
+        bio.write('\n'.join(html).encode('utf-8'))
+        bio.seek(0)
+        filename = f"{(student.name or 'student').replace(' ', '_')}_attempts.doc"
+        return send_file(bio, as_attachment=True, download_name=filename, mimetype='application/msword')
+
+    flash('Unknown export format.', 'error')
+    return redirect(url_for('main.teacher_view_student', student_id=student_id))
+
 @main.route("/teacher/messages")
 def teacher_messages():
     # list conversations for this teacher (show student names and unread counts)

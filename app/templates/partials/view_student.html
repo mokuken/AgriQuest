@@ -430,7 +430,19 @@
               "
             >
               <div style="font-weight: 700; color: #111827">Recent Quiz Results</div>
-                <a style="color: #10b981; text-decoration: none; font-weight: 700" href="#">View All</a>
+                <!-- Export selector + button (matches teacher/students layout) -->
+                {% if student and student.id %}
+                  <form action="{{ url_for('main.teacher_export_student_attempts', student_id=student.id) }}" method="get" style="display:flex; gap:8px; align-items:center;">
+                    <select name="format" style="padding:8px; border-radius:6px; border:1px solid #e0e0e0;">
+                      <option value="csv">Excel (CSV)</option>
+                      <option value="docx">Word (.docx)</option>
+                      <option value="txt">Text (TXT)</option>
+                    </select>
+                    <button class="btn green" type="submit" style="font-weight:700;">Export</button>
+                  </form>
+                {% else %}
+                  <a style="color: #10b981; text-decoration: none; font-weight: 700" href="#">Export Results</a>
+                {% endif %}
                 </div>
               <div class="result-list">
                 {% if quizzes and quizzes|length > 0 %}
@@ -578,5 +590,9 @@
         if (fill) fill.style.width = pct + '%';
       });
     });
+  </script>
+  <script>
+    // Export dropdown behaviour
+  // no-op: dropdown removed; export uses form submit now
   </script>
 </html>
