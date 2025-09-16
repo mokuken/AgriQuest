@@ -1311,6 +1311,37 @@ def teacher_edit_quiz(quiz_id):
         return redirect(url_for('main.teacher_quizzes'))
 
 
+@main.route('/teacher/quizzes/delete/<int:quiz_id>', methods=['POST'])
+def teacher_delete_quiz(quiz_id):
+    """Delete a quiz owned by the logged-in teacher. Returns JSON.
+    """
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    quiz = Quiz.query.filter_by(id=quiz_id, teacher_id=teacher_id).first()
+    if not quiz:
+        return jsonify({'error': 'Quiz not found or access denied'}), 404
+
+    try:
+        # First remove related AttemptAnswer rows, then attempts, using bulk
+        # deletes to avoid SQLAlchemy emitting UPDATEs that set quiz_id=NULL
+        # which violates the NOT NULL constraint in SQLite.
+        attempt_ids = [r.id for r in QuizAttempt.query.with_entities(QuizAttempt.id).filter_by(quiz_id=quiz.id).all()]
+        if attempt_ids:
+            # delete answers for those attempts
+            AttemptAnswer.query.filter(AttemptAnswer.attempt_id.in_(attempt_ids)).delete(synchronize_session=False)
+            # delete attempts themselves
+            QuizAttempt.query.filter(QuizAttempt.id.in_(attempt_ids)).delete(synchronize_session=False)
+        # finally delete the quiz
+        db.session.delete(quiz)
+        db.session.commit()
+        return jsonify({'status': 'ok'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
 @main.route("/student/progress")
 def student_progress():
     student_id = session.get('student_id')

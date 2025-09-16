@@ -91,7 +91,8 @@ class QuizAttempt(db.Model):
 	# relationship: answers for this attempt
 	answers = db.relationship('AttemptAnswer', backref='attempt', cascade='all, delete-orphan', lazy=True)
 	# relationship to the quiz
-	quiz = db.relationship('Quiz', backref='attempts', lazy=True)
+	# ensure attempts are removed if the parent Quiz is deleted
+	quiz = db.relationship('Quiz', backref=db.backref('attempts', cascade='all, delete-orphan'), lazy=True)
 
 
 # Individual per-question answers for an attempt
