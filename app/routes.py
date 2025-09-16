@@ -660,6 +660,34 @@ def student_progress():
         percent = 0
         weekly_message = "Weekly progress unavailable"
 
+    # compute per-subject average percent for this student
+    subject_strengths = []
+    if student_id:
+        try:
+            rows = (
+                db.session.query(
+                    Subject.id.label('subject_id'),
+                    Subject.name.label('subject_name'),
+                    func.avg(QuizAttempt.percent).label('avg_percent'),
+                    func.count(QuizAttempt.id).label('attempts_count')
+                )
+                .join(Quiz, Quiz.subject_id == Subject.id)
+                .join(QuizAttempt, QuizAttempt.quiz_id == Quiz.id)
+                .filter(QuizAttempt.student_id == student_id, QuizAttempt.completed_at != None, QuizAttempt.percent != None)
+                .group_by(Subject.id)
+                .order_by(func.avg(QuizAttempt.percent).desc())
+                .all()
+            )
+            for r in rows:
+                subject_strengths.append({
+                    'id': r.subject_id,
+                    'name': r.subject_name,
+                    'avg_percent': round(float(r.avg_percent), 1) if r.avg_percent is not None else 0.0,
+                    'attempts': int(r.attempts_count),
+                })
+        except Exception:
+            subject_strengths = []
+
     return render_template(
         "student/progress.html",
         attempts=attempts,
@@ -667,6 +695,7 @@ def student_progress():
         weekly_goal_completed=completed_this_week,
         weekly_goal_percent=percent,
         weekly_goal_message=weekly_message,
+        subject_strengths=subject_strengths,
     )
 
 @main.route("/student/ranking")

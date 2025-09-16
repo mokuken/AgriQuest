@@ -65,6 +65,7 @@
   .strength-row .label { color:#111827; font-weight:700; }
   .strength-row .bar { flex:1; height:8px; background:#f1f5f9; border-radius:8px; margin: 0 12px; overflow:hidden; }
   .strength-row .bar > i { display:block; height:100%; border-radius:8px; }
+  .strength-row .bar > i { width: calc(var(--pct, 0) * 1%); background: var(--bar-color, #10b981); }
 
   /* Logout modal (used by sidebar) */
     #logoutModal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.3); z-index: 1000; align-items: center; justify-content: center; }
@@ -173,26 +174,28 @@
 
           <div class="strengths card" style="margin-top:12px;">
             <h3 style="margin-top:0;">Strengths & Weaknesses</h3>
-            <div class="strength-row">
-              <div class="label">Biology</div>
-              <div class="bar"><i style="width:92%; background:#10b981;"></i></div>
-              <div style="min-width:36px; text-align:right;">92%</div>
-            </div>
-            <div class="strength-row">
-              <div class="label">Agriculture</div>
-              <div class="bar"><i style="width:88%; background:#2563eb;"></i></div>
-              <div style="min-width:36px; text-align:right;">88%</div>
-            </div>
-            <div class="strength-row">
-              <div class="label">Physics</div>
-              <div class="bar"><i style="width:81%; background:#7c3aed;"></i></div>
-              <div style="min-width:36px; text-align:right;">81%</div>
-            </div>
-            <div class="strength-row" style="margin-bottom:0;">
-              <div class="label">Chemistry</div>
-              <div class="bar"><i style="width:74%; background:#f59e0b;"></i></div>
-              <div style="min-width:36px; text-align:right;">74%</div>
-            </div>
+            {% if subject_strengths and subject_strengths|length > 0 %}
+              {% for s in subject_strengths %}
+                {% set pct = s.avg_percent if s.avg_percent is not none else 0 %}
+                {% set pct_int = pct|int %}
+                {% if pct >= 85 %}
+                  {% set color = '#10b981' %}
+                {% elif pct >= 70 %}
+                  {% set color = '#2563eb' %}
+                {% elif pct >= 50 %}
+                  {% set color = '#f59e0b' %}
+                {% else %}
+                  {% set color = '#ef4444' %}
+                {% endif %}
+                <div class="strength-row">
+                  <div class="label">{{ s.name }}</div>
+                  <div class="bar" style="--pct: {{ pct_int }}; --bar-color: {{ color }};"><i></i></div>
+                  <div style="min-width:36px; text-align:right;">{{ '%.1f'|format(pct) }}%</div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div style="color:#6b7280;">No subject data yet. Take quizzes across subjects to see your strengths here.</div>
+            {% endif %}
           </div>
         </div>
       </div>
