@@ -109,6 +109,9 @@
                       <div class="result-pill">{{ a.score if a.score is not none else '?' }}/{{ q.questions|length if q else '?' }} Correct</div>
                     </div>
                     <div class="result-score">
+                      {% if q and q.subject %}
+                        <div style="font-size:0.85rem; color:#6b7280; margin-bottom:6px; text-align:right;">{{ q.subject.name }}</div>
+                      {% endif %}
                       {% if a.percent is not none %}
                         {% if a.percent >= 85 %}
                           <div class="pct" style="color:#059669;">{{ a.percent|round(1) }}%</div>
