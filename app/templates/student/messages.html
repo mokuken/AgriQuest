@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard</title>
+  <title>Messages</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}" />
   </head>
   <style>
     * {
@@ -144,6 +145,7 @@
       gap: 20px;
       padding: 0 20px;
       margin-top: 20px;
+      overflow-x: hidden;
     }
 
     .section-left,
@@ -155,10 +157,14 @@
 
     .section-left {
       width: 25%;
+      transform: translateX(100%);           /* start off to the right */
+      animation: slideIn 600ms ease-out forwards;
     }
 
     .section-right {
       width: 75%;
+      transform: translateX(100%);           /* start off to the right */
+      animation: slideIn 800ms ease-out forwards;
     }
 
     .messaging-wrapper {

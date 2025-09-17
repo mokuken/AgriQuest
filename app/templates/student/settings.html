@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
+    <title>Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}" />
   </head>
   <style>
     /* Minimal styles used by this template and included sidebar partial */
@@ -33,6 +34,7 @@
       width: 80%;
       overflow-y: auto;
       padding-bottom: 20px;
+      overflow-x: hidden;
     }
     .header {
       width: 100%;
@@ -54,6 +56,8 @@
       gap: 20px;
       padding: 0 20px;
       margin-top: 20px;
+      transform: translateX(100%);           /* start off to the right */
+      animation: slideIn 600ms ease-out forwards;
     }
     /* Settings page styles */
     .settings-container { max-width: 1000px; margin: 0 auto; }

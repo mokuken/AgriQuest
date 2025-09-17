@@ -1,0 +1,14 @@
+@keyframes slideIn {
+  to { transform: translateX(0); }       /* end at natural position */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pop {
+  from { transform: translateY(10px) scale(0.95); opacity: 0; }
+  60%  { transform: translateY(-6px) scale(1.03); opacity: 1; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}

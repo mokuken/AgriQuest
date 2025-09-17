@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>AgriQuest Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}" />
 	<style>
         * {
             box-sizing: border-box;
@@ -41,6 +42,7 @@
 			width: 100%;
 			max-width: 400px;
 			text-align: center;
+			animation: pop 360ms cubic-bezier(.2,.9,.3,1) both;
 		}
 		.back-btn {
 			position: absolute;

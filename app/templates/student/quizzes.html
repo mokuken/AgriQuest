@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
+    <title>Quizzes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}" />
   </head>
   <style>
     * {
@@ -35,6 +36,7 @@
       width: 80%;
       overflow-y: scroll;
       padding-bottom: 20px;
+      overflow-x: hidden;
     }
 
     .header {
@@ -144,6 +146,8 @@
       gap: 20px;
       padding: 0 20px;
       margin-top: 20px;
+      transform: translateX(100%);           /* start off to the right */
+      animation: slideIn 800ms ease-out forwards;
     }
 
     .section-left,
@@ -346,7 +350,7 @@
         <div class="available-quizzes" style="width: 100%;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <input id="quiz-search" type="text" placeholder="Search quizzes..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 1rem; width: 220px;" />
-            <a style="color: #10b981; text-decoration: none; font-weight: 700">View All</a>
+            <!-- <a style="color: #10b981; text-decoration: none; font-weight: 700">View All</a> -->
           </div>
           {% if quizzes and quizzes|length > 0 %}
             {% for quiz in quizzes %}

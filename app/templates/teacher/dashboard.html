@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}" />
   </head>
   <style>
     * {
@@ -35,6 +36,7 @@
       width: 80%;
       overflow-y: scroll;
       padding-bottom: 20px;
+      overflow-x: hidden;
     }
 
     .header {
@@ -65,15 +67,23 @@
 
     .total-quizzes {
       grid-area: 1 / 1 / 2 / 2;
+      transform: translateX(100%);           /* start off to the right */
+      animation: slideIn 600ms ease-out forwards;
     }
     .active-subjects {
       grid-area: 1 / 2 / 2 / 3;
+      transform: translateX(100%);           /* start off to the right */
+      animation: slideIn 800ms ease-out forwards;
     }
     .total-students {
       grid-area: 1 / 3 / 2 / 4;
+      transform: translateX(100%);           /* start off to the right */
+      animation: slideIn 1000ms ease-out forwards;
     }
     .avg-score {
       grid-area: 1 / 4 / 2 / 5;
+      transform: translateX(100%);           /* start off to the right */
+      animation: slideIn 1200ms ease-out forwards;
     }
 
     .total-quizzes,
@@ -153,10 +163,14 @@
 
     .section-left {
       width: 70%;
+      transform: translateX(40%);           /* start off to the right */
+      animation: slideIn 600ms ease-out forwards;
     }
 
     .section-right {
       width: 30%;
+      transform: translateX(30%);           /* start off to the right */
+      animation: slideIn 800ms ease-out forwards;
     }
 
     .available-quizzes {

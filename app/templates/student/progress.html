@@ -3,85 +3,348 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
+    <title>Progress</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/animations.css') }}"
+    />
   </head>
   <style>
     /* Basic layout used by this page and included sidebar */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #f8f9e9; min-height: 100vh; display: flex; }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9e9;
+      min-height: 100vh;
+      display: flex;
+    }
 
-    .left { width: 20%; background: white; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; border-right: 1px solid #e0e0e0; }
-    .right { height: 100vh; width: 80%; overflow-y: auto; padding-bottom: 20px; }
+    .left {
+      width: 20%;
+      background: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      border-right: 1px solid #e0e0e0;
+    }
+    .right {
+      height: 100vh;
+      width: 80%;
+      overflow-y: auto;
+      padding-bottom: 20px;
+    }
 
-    .header { width: 100%; background-color: #fff; border-bottom: 1px solid #e0e0e0; margin-bottom: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-    .header-title { display: flex; flex-direction: column; gap: 8px; }
+    .header {
+      width: 100%;
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
     /* Sidebar (also present in partial) */
-    .logo { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; color: #2d3a2d; padding: 10px 0; }
-    .nav-links { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
-    .nav-links a { text-decoration: none; color: #2d3a2d; font-weight: 600; font-size: 1.2rem; padding: 10px 15px; border-radius: 8px; border: 1px solid transparent; }
-    .nav-links a:hover { background-color: #f0fdf4; color: #15803d; border: 1px solid #15803d; }
-    .nav-links a.active { background-color: #d1fae5; color: #15803d; border: 1px solid #15803d; }
-    .footer { padding-top: 12px; }
-    .footer a { text-decoration: none; color: red; font-weight: 600; display: inline-block; padding: 10px 15px; border-radius: 6px; background-color: rgb(255, 186, 186); border: 1px solid red; width: 100%; }
+    .logo {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: 700;
+      color: #2d3a2d;
+      padding: 10px 0;
+    }
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #2d3a2d;
+      font-weight: 600;
+      font-size: 1.2rem;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+    }
+    .nav-links a:hover {
+      background-color: #f0fdf4;
+      color: #15803d;
+      border: 1px solid #15803d;
+    }
+    .nav-links a.active {
+      background-color: #d1fae5;
+      color: #15803d;
+      border: 1px solid #15803d;
+    }
+    .footer {
+      padding-top: 12px;
+    }
+    .footer a {
+      text-decoration: none;
+      color: red;
+      font-weight: 600;
+      display: inline-block;
+      padding: 10px 15px;
+      border-radius: 6px;
+      background-color: rgb(255, 186, 186);
+      border: 1px solid red;
+      width: 100%;
+    }
 
-  /* Section / content cards (recent results, weekly goal, strengths) */
-  .section { display: flex; gap: 20px; padding: 0 20px; margin-top: 20px; }
-  .section-left, .section-right { border-radius: 12px; }
-  .section-left { width: 70%; }
-  .section-right { width: 30%; }
+    /* Section / content cards (recent results, weekly goal, strengths) */
+    .section {
+      display: flex;
+      gap: 20px;
+      padding: 0 20px;
+      margin-top: 20px;
+    }
+    .section-left,
+    .section-right {
+      border-radius: 12px;
+    }
+    .section-left {
+      width: 70%;
+      transform: translateX(20%);           /* start off to the right */
+      animation: slideIn 600ms ease-out forwards;
+    }
+    .section-right {
+      width: 30%;
+      transform: translateX(70%);           /* start off to the right */
+      animation: slideIn 600ms ease-out forwards;
+    }
 
-  .card { width: 100%; background: white; border-radius: 10px; padding: 20px 22px; border: 1px solid #e6e6e6; box-shadow: 0 6px 18px rgba(16,24,40,0.03); }
-  .card h3 { margin-bottom: 14px; font-size: 1.05rem; color: #111827; }
+    .card {
+      width: 100%;
+      background: white;
+      border-radius: 10px;
+      padding: 20px 22px;
+      border: 1px solid #e6e6e6;
+      box-shadow: 0 6px 18px rgba(16, 24, 40, 0.03);
+    }
+    .card h3 {
+      margin-bottom: 14px;
+      font-size: 1.05rem;
+      color: #111827;
+    }
 
-  .result-list { display: flex; flex-direction: column; gap: 12px; }
-  .result-item { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 8px; background: #fff; border: 1px solid transparent; }
-  .result-item.green { background: linear-gradient(90deg,#ecf9ee,#f6fdf8); border:1px solid #dff3e6; }
-  .result-item.blue { background: linear-gradient(90deg,#eef6ff,#f3f8ff); border:1px solid #e6f0ff; }
-  .result-item.yellow { background: linear-gradient(90deg,#fffaf0,#fff7e6); border:1px solid #ffe7ce; }
+    .result-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .result-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid transparent;
+    }
+    .result-item.green {
+      background: linear-gradient(90deg, #ecf9ee, #f6fdf8);
+      border: 1px solid #dff3e6;
+    }
+    .result-item.blue {
+      background: linear-gradient(90deg, #eef6ff, #f3f8ff);
+      border: 1px solid #e6f0ff;
+    }
+    .result-item.yellow {
+      background: linear-gradient(90deg, #fffaf0, #fff7e6);
+      border: 1px solid #ffe7ce;
+    }
 
-  .result-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff; }
-  .result-icon.green { background: #10b981; }
-  .result-icon.blue { background: #2563eb; }
-  .result-icon.yellow { background: #b45309; }
+    .result-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #fff;
+    }
+    .result-icon.green {
+      background: #10b981;
+    }
+    .result-icon.blue {
+      background: #2563eb;
+    }
+    .result-icon.yellow {
+      background: #b45309;
+    }
 
-  .result-meta { flex:1; }
-  .result-title { font-weight:700; color:#111827; }
-  .result-sub { color:#6b7280; font-size:0.9rem; margin-top:4px; }
-  .result-pill { display:inline-block; background:#ecfdf5; color:#065f46; padding:4px 8px; border-radius:8px; font-size:0.75rem; margin-top:8px; }
+    .result-meta {
+      flex: 1;
+    }
+    .result-title {
+      font-weight: 700;
+      color: #111827;
+    }
+    .result-sub {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+    .result-pill {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #065f46;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      margin-top: 8px;
+    }
 
-  .result-score { text-align:right; min-width:80px; }
-  .result-score .pct { font-weight:700; font-size:1.4rem; color:#059669; }
-  .result-score .label { color:#6b7280; font-size:0.85rem; }
+    .result-score {
+      text-align: right;
+      min-width: 80px;
+    }
+    .result-score .pct {
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: #059669;
+    }
+    .result-score .label {
+      color: #6b7280;
+      font-size: 0.85rem;
+    }
 
-  .weekly-goal { background: linear-gradient(180deg,#7c3aed,#c084fc); color:#fff; border-radius:12px; padding:18px; margin-bottom:18px; }
-  .weekly-goal .progress { background: rgba(255,255,255,0.2); height:10px; border-radius:8px; overflow:hidden; margin:12px 0; }
-  .weekly-goal .progress > i { display:block; height:100%; background:#fff; width: calc(var(--pct,80) * 1%); }
-  .weekly-goal .meta { display:flex; justify-content:space-between; align-items:center; }
+    .weekly-goal {
+      background: linear-gradient(180deg, #7c3aed, #c084fc);
+      color: #fff;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .weekly-goal .progress {
+      background: rgba(255, 255, 255, 0.2);
+      height: 10px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .weekly-goal .progress > i {
+      display: block;
+      height: 100%;
+      background: #fff;
+      width: calc(var(--pct, 80) * 1%);
+    }
+    .weekly-goal .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-  .strengths { background:#fff; border-radius:12px; padding:18px; border:1px solid #e6e6e6; }
-  .strength-row { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
-  .strength-row .label { color:#111827; font-weight:700; }
-  .strength-row .bar { flex:1; height:8px; background:#f1f5f9; border-radius:8px; margin: 0 12px; overflow:hidden; }
-  .strength-row .bar > i { display:block; height:100%; border-radius:8px; }
-  .strength-row .bar > i { width: calc(var(--pct, 0) * 1%); background: var(--bar-color, #10b981); }
+    .strengths {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid #e6e6e6;
+    }
+    .strength-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .strength-row .label {
+      color: #111827;
+      font-weight: 700;
+    }
+    .strength-row .bar {
+      flex: 1;
+      height: 8px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      margin: 0 12px;
+      overflow: hidden;
+    }
+    .strength-row .bar > i {
+      display: block;
+      height: 100%;
+      border-radius: 8px;
+    }
+    .strength-row .bar > i {
+      width: calc(var(--pct, 0) * 1%);
+      background: var(--bar-color, #10b981);
+    }
 
-  /* Logout modal (used by sidebar) */
-    #logoutModal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.3); z-index: 1000; align-items: center; justify-content: center; }
-    #logoutModal .modal-content { background: #fff; padding: 30px 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); max-width: 350px; margin: auto; text-align: center; transform: scale(0.7); opacity: 0; transition: transform 0.25s cubic-bezier(0.42,0,0.58,1), opacity 0.2s; }
-    #logoutModal.show .modal-content { transform: scale(1); opacity: 1; }
-    #logoutModal h3 { margin-bottom: 20px; }
-    #logoutModal .modal-actions { margin-top: 25px; display: flex; gap: 15px; justify-content: center; }
-    #confirmLogout { background: red; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; }
-  #cancelLogout { background: #eee; color: #333; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; }
+    /* Logout modal (used by sidebar) */
+    #logoutModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    #logoutModal .modal-content {
+      background: #fff;
+      padding: 30px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      max-width: 350px;
+      margin: auto;
+      text-align: center;
+      transform: scale(0.7);
+      opacity: 0;
+      transition: transform 0.25s cubic-bezier(0.42, 0, 0.58, 1), opacity 0.2s;
+    }
+    #logoutModal.show .modal-content {
+      transform: scale(1);
+      opacity: 1;
+    }
+    #logoutModal h3 {
+      margin-bottom: 20px;
+    }
+    #logoutModal .modal-actions {
+      margin-top: 25px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+    #confirmLogout {
+      background: red;
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    #cancelLogout {
+      background: #eee;
+      color: #333;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
   </style>
   <body>
-    <div class="left">
-
-      {% include 'partials/student_sidebar.html' %}
-
-    </div>
+    <div class="left">{% include 'partials/student_sidebar.html' %}</div>
     <div class="right">
       <div class="header">
         <div class="header-title">
@@ -94,47 +357,77 @@
           >
         </div>
       </div>
-      <div class="section" style="width: 100%;">
+      <div class="section" style="width: 100%">
         <div class="section-left">
           <div class="card">
             <h3>Recent Quiz Results</h3>
             <div class="result-list">
-              {% if attempts and attempts|length > 0 %}
-                {% for a in attempts %}
-                  {% set q = a.quiz %}
-                  <div class="result-item {{ 'green' if a.percent and a.percent >= 85 else ('blue' if a.percent and a.percent >= 70 else 'yellow') }}">
-                    <div class="result-icon {{ 'green' if a.percent and a.percent >= 85 else ('blue' if a.percent and a.percent >= 70 else 'yellow') }}">{{ loop.index }}</div>
-                    <div class="result-meta">
-                      <div class="result-title">{{ q.title if q else 'Quiz #' ~ a.quiz_id }}</div>
-                      <div class="result-sub">{{ a.completed_at.strftime('%b %d, %Y %H:%M') if a.completed_at else 'In progress' }}</div>
-                      <div class="result-pill">{{ a.score if a.score is not none else '?' }}/{{ q.questions|length if q else '?' }} Correct</div>
-                    </div>
-                    <div class="result-score">
-                      {% if q and q.subject %}
-                        <div style="font-size:0.85rem; color:#6b7280; margin-bottom:6px; text-align:right;">{{ q.subject.name }}</div>
-                      {% endif %}
-                      {% if a.percent is not none %}
-                        {% if a.percent >= 85 %}
-                          <div class="pct" style="color:#059669;">{{ a.percent|round(1) }}%</div>
-                        {% elif a.percent >= 70 %}
-                          <div class="pct" style="color:#2563eb;">{{ a.percent|round(1) }}%</div>
-                        {% else %}
-                          <div class="pct" style="color:#b45309;">{{ a.percent|round(1) }}%</div>
-                        {% endif %}
-                      {% else %}
-                        <div class="pct">—%</div>
-                      {% endif %}
-                      <div class="label">{{ (a.time_taken_seconds ~ 's') if a.time_taken_seconds else '' }}</div>
-                    </div>
+              {% if attempts and attempts|length > 0 %} {% for a in attempts %}
+              {% set q = a.quiz %}
+              <div
+                class="result-item {{ 'green' if a.percent and a.percent >= 85 else ('blue' if a.percent and a.percent >= 70 else 'yellow') }}"
+              >
+                <div
+                  class="result-icon {{ 'green' if a.percent and a.percent >= 85 else ('blue' if a.percent and a.percent >= 70 else 'yellow') }}"
+                >
+                  {{ loop.index }}
+                </div>
+                <div class="result-meta">
+                  <div class="result-title">
+                    {{ q.title if q else 'Quiz #' ~ a.quiz_id }}
                   </div>
-                {% endfor %}
-              {% else %}
-                <div class="result-item">
-                  <div class="result-meta">
-                    <div class="result-title">No quiz attempts yet</div>
-                    <div class="result-sub">Take your first quiz to see your results here.</div>
+                  <div class="result-sub">
+                    {{ a.completed_at.strftime('%b %d, %Y %H:%M') if
+                    a.completed_at else 'In progress' }}
+                  </div>
+                  <div class="result-pill">
+                    {{ a.score if a.score is not none else '?' }}/{{
+                    q.questions|length if q else '?' }} Correct
                   </div>
                 </div>
+                <div class="result-score">
+                  {% if q and q.subject %}
+                  <div
+                    style="
+                      font-size: 0.85rem;
+                      color: #6b7280;
+                      margin-bottom: 6px;
+                      text-align: right;
+                    "
+                  >
+                    {{ q.subject.name }}
+                  </div>
+                  {% endif %} {% if a.percent is not none %} {% if a.percent >=
+                  85 %}
+                  <div class="pct" style="color: #059669">
+                    {{ a.percent|round(1) }}%
+                  </div>
+                  {% elif a.percent >= 70 %}
+                  <div class="pct" style="color: #2563eb">
+                    {{ a.percent|round(1) }}%
+                  </div>
+                  {% else %}
+                  <div class="pct" style="color: #b45309">
+                    {{ a.percent|round(1) }}%
+                  </div>
+                  {% endif %} {% else %}
+                  <div class="pct">—%</div>
+                  {% endif %}
+                  <div class="label">
+                    {{ (a.time_taken_seconds ~ 's') if a.time_taken_seconds else
+                    '' }}
+                  </div>
+                </div>
+              </div>
+              {% endfor %} {% else %}
+              <div class="result-item">
+                <div class="result-meta">
+                  <div class="result-title">No quiz attempts yet</div>
+                  <div class="result-sub">
+                    Take your first quiz to see your results here.
+                  </div>
+                </div>
+              </div>
               {% endif %}
             </div>
           </div>
@@ -144,57 +437,112 @@
           <div class="weekly-goal card">
             <div class="meta">
               <div>
-                <div style="font-weight:700;">Weekly Goal</div>
-                <div style="font-size:0.9rem; opacity:0.95;">Progress</div>
+                <div style="font-weight: 700">Weekly Goal</div>
+                <div style="font-size: 0.9rem; opacity: 0.95">Progress</div>
               </div>
-              <div style="font-weight:700;">{{ weekly_goal_completed }} / {{ weekly_goal_total }} Quizzes</div>
+              <div style="font-weight: 700">
+                {{ weekly_goal_completed }} / {{ weekly_goal_total }} Quizzes
+              </div>
             </div>
-              <div class="progress" style="--pct: {{ weekly_goal_percent }};"><i></i></div>
-              <div style="font-size:0.9rem; opacity:0.9;">{{ weekly_goal_percent }}% complete - {{ weekly_goal_message }}</div>
-
-              {# Detailed weekly goals list (if provided) #}
-              {% if weekly_goals and weekly_goals|length > 0 %}
-                <div style="margin-top:12px;">
-                  <h4 style="color:#fff; margin:0 0 8px 0; font-size:1rem;">Goals this week</h4>
-                  {% for goal in weekly_goals %}
-                    {% set pct = (goal.completed * 100 / goal.total)|round(0) if goal.total else 0 %}
-                    <div style="background: rgba(255,255,255,0.08); padding:10px; border-radius:8px; margin-bottom:8px;">
-                      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; color:#fff; font-weight:700;">
-                        <div style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ goal.title or 'Goal' }}</div>
-                        <div style="min-width:56px; text-align:right;">{{ goal.completed }} / {{ goal.total }}</div>
-                      </div>
-                      <div class="goal-bar" data-pct="{{ pct }}" style="height:8px; background: rgba(255,255,255,0.12); border-radius:6px; overflow:hidden; margin-top:8px;">
-                        <i class="goal-bar-fill" style="display:block; height:100%; background:rgba(255,255,255,0.95); width:0%;"></i>
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
-              {% endif %}
+            <div class="progress" style="--pct: {{ weekly_goal_percent }};">
+              <i></i>
+            </div>
+            <div style="font-size: 0.9rem; opacity: 0.9">
+              {{ weekly_goal_percent }}% complete - {{ weekly_goal_message }}
             </div>
 
-          <div class="strengths card" style="margin-top:12px;">
-            <h3 style="margin-top:0;">Strengths & Weaknesses</h3>
-            {% if subject_strengths and subject_strengths|length > 0 %}
-              {% for s in subject_strengths %}
-                {% set pct = s.avg_percent if s.avg_percent is not none else 0 %}
-                {% set pct_int = pct|int %}
-                {% if pct >= 85 %}
-                  {% set color = '#10b981' %}
-                {% elif pct >= 70 %}
-                  {% set color = '#2563eb' %}
-                {% elif pct >= 50 %}
-                  {% set color = '#f59e0b' %}
-                {% else %}
-                  {% set color = '#ef4444' %}
-                {% endif %}
-                <div class="strength-row">
-                  <div class="label">{{ s.name }}</div>
-                  <div class="bar" style="--pct: {{ pct_int }}; --bar-color: {{ color }};"><i></i></div>
-                  <div style="min-width:36px; text-align:right;">{{ '%.1f'|format(pct) }}%</div>
+            {# Detailed weekly goals list (if provided) #} {% if weekly_goals
+            and weekly_goals|length > 0 %}
+            <div style="margin-top: 12px">
+              <h4 style="color: #fff; margin: 0 0 8px 0; font-size: 1rem">
+                Goals this week
+              </h4>
+              {% for goal in weekly_goals %} {% set pct = (goal.completed * 100
+              / goal.total)|round(0) if goal.total else 0 %}
+              <div
+                style="
+                  background: rgba(255, 255, 255, 0.08);
+                  padding: 10px;
+                  border-radius: 8px;
+                  margin-bottom: 8px;
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                    color: #fff;
+                    font-weight: 700;
+                  "
+                >
+                  <div
+                    style="
+                      flex: 1;
+                      white-space: nowrap;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                    "
+                  >
+                    {{ goal.title or 'Goal' }}
+                  </div>
+                  <div style="min-width: 56px; text-align: right">
+                    {{ goal.completed }} / {{ goal.total }}
+                  </div>
                 </div>
+                <div
+                  class="goal-bar"
+                  data-pct="{{ pct }}"
+                  style="
+                    height: 8px;
+                    background: rgba(255, 255, 255, 0.12);
+                    border-radius: 6px;
+                    overflow: hidden;
+                    margin-top: 8px;
+                  "
+                >
+                  <i
+                    class="goal-bar-fill"
+                    style="
+                      display: block;
+                      height: 100%;
+                      background: rgba(255, 255, 255, 0.95);
+                      width: 0%;
+                    "
+                  ></i>
+                </div>
+              </div>
               {% endfor %}
-            {% else %}
-              <div style="color:#6b7280;">No subject data yet. Take quizzes across subjects to see your strengths here.</div>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="strengths card" style="margin-top: 12px">
+            <h3 style="margin-top: 0">Strengths & Weaknesses</h3>
+            {% if subject_strengths and subject_strengths|length > 0 %} {% for s
+            in subject_strengths %} {% set pct = s.avg_percent if s.avg_percent
+            is not none else 0 %} {% set pct_int = pct|int %} {% if pct >= 85 %}
+            {% set color = '#10b981' %} {% elif pct >= 70 %} {% set color =
+            '#2563eb' %} {% elif pct >= 50 %} {% set color = '#f59e0b' %} {%
+            else %} {% set color = '#ef4444' %} {% endif %}
+            <div class="strength-row">
+              <div class="label">{{ s.name }}</div>
+              <div
+                class="bar"
+                style="--pct: {{ pct_int }}; --bar-color: {{ color }};"
+              >
+                <i></i>
+              </div>
+              <div style="min-width: 36px; text-align: right">
+                {{ '%.1f'|format(pct) }}%
+              </div>
+            </div>
+            {% endfor %} {% else %}
+            <div style="color: #6b7280">
+              No subject data yet. Take quizzes across subjects to see your
+              strengths here.
+            </div>
             {% endif %}
           </div>
         </div>
@@ -202,11 +550,11 @@
     </div>
   </body>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      document.querySelectorAll('.goal-bar').forEach(function(el) {
-        var pct = el.getAttribute('data-pct') || 0;
-        var fill = el.querySelector('.goal-bar-fill');
-        if (fill) fill.style.width = pct + '%';
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".goal-bar").forEach(function (el) {
+        var pct = el.getAttribute("data-pct") || 0;
+        var fill = el.querySelector(".goal-bar-fill");
+        if (fill) fill.style.width = pct + "%";
       });
     });
   </script>
